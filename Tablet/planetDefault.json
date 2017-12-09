@@ -1,0 +1,92 @@
+{
+    "DAMPING": {
+        "min": 1,
+        "max": 50,
+        "val": 0.0,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "DAMPING: ",
+        "id": "DAMPING"
+    },
+    "EARTH_SIZE": {
+        "min": 1,
+        "max": 50,
+        "val": 7.0,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "EARTH_SIZE: ",
+        "id": "EARTH_SIZE"
+    },
+    "referenceRadius": {
+        "min": 1,
+        "max": 50,
+        "val": 15.0,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "referenceRadius: ",
+        "id": "referenceRadius"
+    },
+    "referenceDiameter": {
+        "min": 1,
+        "max": 50,
+        "val": 0.6,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "referenceDiameter: ",
+        "id": "referenceDiameter"
+    },
+    "referencePeriod": {
+        "min": 1,
+        "max": 50,
+        "val": 3.0,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "referencePeriod: ",
+        "id": "referencePeriod"
+    },
+    "LARGE_BODY_MASS": {
+        "min": 1,
+        "max": 800,
+        "val": 250.0,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "LARGE_BODY_MASS: ",
+        "id": "LARGE_BODY_MASS"
+    },
+    "VELOCITY_OFFSET_Y": {
+        "min": 1,
+        "max": 50,
+        "val": -0.3,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "VELOCITY_OFFSET_Y: ",
+        "id": "VELOCITY_OFFSET_Y"
+    },
+    "VELOCITY_OFFSET_Z": {
+        "min": 1,
+        "max": 50,
+        "val": 0.9,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "VELOCITY_OFFSET_Z: ",
+        "id": "VELOCITY_OFFSET_Z"
+    },
+    "MOON_RADIUS": {
+        "min": 1,
+        "max": 50,
+        "val": 0.387,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "MOON_RADIUS: ",
+        "id": "MOON_RADIUS"
+    },
+    "MOON_SCALE": {
+        "min": 1,
+        "max": 50,
+        "val": 0.383,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "MOON_SCALE: ",
+        "id": "MOON_SCALE"
+    }
+}
