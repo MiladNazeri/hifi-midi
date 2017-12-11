@@ -1,8 +1,7 @@
-//
+//  solarsystem.js
 //  example
 //
 //  Created by Bridget Went, 5/28/15.
-//  Modified by Milad Nazeri, 12/10/17
 //  Copyright 2015 High Fidelity, Inc.
 //
 //  A project to build a virtual physics classroom to simulate the solar system, gravity, and orbital physics.
@@ -17,14 +16,10 @@ var planetConfig =
 var theEarth;
 var theMoon;
 
-var update;
-var center = {
-        x: 0,
-        y: 0,
-        z: 0 };
-var radius;
-var velocity;
-var position;
+var center =
+        {   x: 0,
+            y: 0,
+            z: 0 };
 
 var APP_URL =
         Script.resolvePath('Tablet/planetUI.html');
@@ -55,38 +50,30 @@ function onClicked() {
 button.clicked.connect(onClicked);
 
 function onWebEventReceived(event) {
-    var htmlEvent =
-            JSON.parse(event);
+    var htmlEvent = JSON.parse(event);
     switch (htmlEvent.type){
         case 'slider':
             planetConfig[htmlEvent.id].val = htmlEvent.value;
             restart();
             break;
         default: }
+    // print(JSON.stringify(htmlEvent));
 }
 
 function getGravity(){
-    return (
-        (Math.pow(planetConfig.referenceRadius.val, 3.0) /
-        Math.pow((planetConfig.referencePeriod.val / (2.0 * Math.PI)), 2.0)) /
-        planetConfig.LARGE_BODY_MASS.val);
-}
-function computeAcceleration(radius){
-    var acc =
-            -(getGravity() * planetConfig.LARGE_BODY_MASS.val) *
-            Math.pow(radius, (-2.0));
-    return acc;
+    return (Math.pow(planetConfig.referenceRadius.val, 3.0) /
+    Math.pow((planetConfig.referencePeriod.val / (2.0 * Math.PI)), 2.0)) /
+        planetConfig.LARGE_BODY_MASS.val;
 }
 function makeEarth(){
     if (theEarth) {
         Entities.deleteEntity(theEarth);
         theEarth =
-            null; }
-    theEarth =
+            null; };
+    TheEarth =
         Entities.addEntity({
             type: "Model",
             modelURL: Script.resolvePath("Earth/earth.obj"),
-            shapeType: 'sphere',
             position: center,
             dimensions: {
                 x: planetConfig.EARTH_SIZE.val,
@@ -104,66 +91,75 @@ function makeEarth(){
 function makeMoon(){
     if (theMoon) {
         Entities.deleteEntity(theMoon);
-        Script.update.disconnect(update);
-        update =
-            null;
         theMoon =
             null; }
-    var initialVelocity =
-            Math.sqrt((getGravity() * planetConfig.LARGE_BODY_MASS.val) / radius);
-    var dimensions =
-            planetConfig.MOON_SCALE.val *
-            planetConfig.referenceDiameter.val;
-    velocity =
-        Vec3.multiply(initialVelocity, Vec3.normalize({
-            x: 0,
-            y: planetConfig.VELOCITY_OFFSET_Y.val,
-            z: planetConfig.VELOCITY_OFFSET_Z.val }));
-    radius =
-        planetConfig.MOON_RADIUS.val *
-        planetConfig.referenceRadius.val
-    position =
-        Vec3.sum(center, {
-            x: radius,
-            y: 0.0,
-            z: 0.0 });
     theMoon =
-        Entities.addEntity({
-            type: "Model",
-            modelURL: Script.resolvePath("Moon/moon.FBX"),
-            position: position,
-            shapeType: 'sphere',
-            dimensions: {
-                x: dimensions,
-                y: dimensions,
-                z: dimensions },
-            velocity: velocity,
-            angularDamping: planetConfig.DAMPING.val,
-            damping: planetConfig.DAMPING.val,
-            ignoreCollisions: false,
-            dynamic: false });
-    update =
-        function(deltaTime){
-            var between =
-                Vec3.subtract(position, center);
-            var speed =
-                computeAcceleration(radius) *
-                deltaTime;
-            var vel =
-                Vec3.multiply(speed, Vec3.normalize(between));
-            // Update velocity and position
-            velocity =
-                Vec3.sum(velocity, vel);
-            position =
-                Vec3.sum(position, Vec3.multiply(deltaTime, velocity));
-            Entities.editEntity(theMoon, {
-                velocity: velocity,
-                position: position }); }
-    Script.update.connect(update);
+        new Moon(planetConfig.MOON_SCALE.val, planetConfig.MOON_RADIUS.val);
 }
 function restart(){
     makeEarth();
     makeMoon();
+}
+function Moon(radiusScale, sizeScale) {
+    this.radius =
+        radiusScale * planetConfig.referenceRadius.val;
+    this.position =
+        Vec3.sum(center, {
+            x: this.radius,
+            y: 0.0,
+            z: 0.0 });
+
+    this.initialVelocity =
+        Math.sqrt((getGravity() * planetConfig.LARGE_BODY_MASS.val) / this.radius);
+
+    this.velocity =
+        Vec3.multiply(this.initialVelocity, Vec3.normalize({
+            x: 0,
+            y: planetConfig.VELOCITY_OFFSET_Y.val,
+            z: planetConfig.VELOCITY_OFFSET_Z.val }));
+    this.dimensions =
+        sizeScale * planetConfig.referenceDiameter.val;
+
+    theMoon =
+        Entities.addEntity({
+            type: "Model",
+            modelURL: Script.resolvePath("Moon/moon.FBX"),
+            position: this.position,
+            dimensions: {
+                x: this.dimensions,
+                y: this.dimensions,
+                z: this.dimensions },
+            velocity: this.velocity,
+            angularDamping: planetConfig.DAMPING.val,
+            damping: planetConfig.DAMPING.val,
+            ignoreCollisions: false,
+            dynamic: false, });
+
+    this.computeAcceleration =
+        function() {
+        var acc =
+            -(getGravity() * planetConfig.LARGE_BODY_MASS.val) * Math.pow(this.radius, (-2.0));
+        return acc;
+    };
+
+    this.update =
+        function(deltaTime) {
+        var between =
+            Vec3.subtract(this.position, center);
+        var speed =
+            this.computeAcceleration(this.radius) * deltaTime;
+        var vel =
+            Vec3.multiply(speed, Vec3.normalize(between));
+
+        // Update velocity and position
+        this.velocity =
+            Vec3.sum(this.velocity, vel);
+        this.position =
+            Vec3.sum(this.position, Vec3.multiply(deltaTime, this.velocity));
+        Entities.editEntity(this.moon, {
+            velocity: this.velocity,
+            position: this.position });
+    };
 }
 function CreateSimulation() {
     MyAvatar.position =
@@ -178,6 +174,11 @@ function scriptEnding() {
     Entities.deleteEntity(theMoon);
     button.clicked.disconnect(onClicked);
     tablet.removeButton(button);
+};
+
+function update(deltaTime){
+    theMoon.update(deltaTime);
 }
 
+Script.update.connect(update);
 Script.scriptEnding.connect(scriptEnding);

@@ -1,6 +1,6 @@
 {
     "DAMPING": {
-        "min": 1,
+        "min": 0,
         "max": 50,
         "val": 0.0,
         "step": 1,
@@ -10,7 +10,7 @@
     },
     "EARTH_SIZE": {
         "min": 1,
-        "max": 50,
+        "max": 200,
         "val": 7.0,
         "step": 1,
         "reset": true,
@@ -19,7 +19,7 @@
     },
     "referenceRadius": {
         "min": 1,
-        "max": 50,
+        "max": 200,
         "val": 15.0,
         "step": 1,
         "reset": true,
@@ -28,7 +28,7 @@
     },
     "referenceDiameter": {
         "min": 1,
-        "max": 50,
+        "max": 200,
         "val": 0.6,
         "step": 1,
         "reset": true,
@@ -37,7 +37,7 @@
     },
     "referencePeriod": {
         "min": 1,
-        "max": 50,
+        "max": 200,
         "val": 3.0,
         "step": 1,
         "reset": true,
@@ -46,7 +46,7 @@
     },
     "LARGE_BODY_MASS": {
         "min": 1,
-        "max": 800,
+        "max": 5000,
         "val": 250.0,
         "step": 1,
         "reset": true,
@@ -54,8 +54,8 @@
         "id": "LARGE_BODY_MASS"
     },
     "VELOCITY_OFFSET_Y": {
-        "min": 1,
-        "max": 50,
+        "min": -100,
+        "max": 100,
         "val": -0.3,
         "step": 1,
         "reset": true,
@@ -63,8 +63,8 @@
         "id": "VELOCITY_OFFSET_Y"
     },
     "VELOCITY_OFFSET_Z": {
-        "min": 1,
-        "max": 50,
+        "min": -100,
+        "max": 100,
         "val": 0.9,
         "step": 1,
         "reset": true,
@@ -72,19 +72,19 @@
         "id": "VELOCITY_OFFSET_Z"
     },
     "MOON_RADIUS": {
-        "min": 1,
-        "max": 50,
+        "min": 0.001,
+        "max": 5,
         "val": 0.387,
-        "step": 1,
+        "step": 0.15,
         "reset": true,
         "fieldTitle": "MOON_RADIUS: ",
         "id": "MOON_RADIUS"
     },
     "MOON_SCALE": {
-        "min": 1,
-        "max": 50,
+        "min": 0.001,
+        "max": 5,
         "val": 0.383,
-        "step": 1,
+        "step": 0.15,
         "reset": true,
         "fieldTitle": "MOON_SCALE: ",
         "id": "MOON_SCALE"

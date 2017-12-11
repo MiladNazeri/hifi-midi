@@ -18,10 +18,10 @@ var theEarth;
 var theMoon;
 
 var update;
-var center = {
-        x: 0,
-        y: 0,
-        z: 0 };
+var center =
+        {   x: 0,
+            y: 0,
+            z: 0 };
 var radius;
 var velocity;
 var position;
@@ -63,6 +63,7 @@ function onWebEventReceived(event) {
             restart();
             break;
         default: }
+    print("==============================\nhtmlEvent:", JSON.stringify(htmlEvent));
 }
 
 function getGravity(){
@@ -73,11 +74,11 @@ function getGravity(){
 }
 function computeAcceleration(radius){
     var acc =
-            -(getGravity() * planetConfig.LARGE_BODY_MASS.val) *
-            Math.pow(radius, (-2.0));
+            -(getGravity() * planetConfig.LARGE_BODY_MASS.val) * Math.pow(radius, (-2.0));
     return acc;
 }
 function makeEarth(){
+    print("==============================\nTHE EARTH:", theEarth);
     if (theEarth) {
         Entities.deleteEntity(theEarth);
         theEarth =
@@ -86,7 +87,6 @@ function makeEarth(){
         Entities.addEntity({
             type: "Model",
             modelURL: Script.resolvePath("Earth/earth.obj"),
-            shapeType: 'sphere',
             position: center,
             dimensions: {
                 x: planetConfig.EARTH_SIZE.val,
@@ -112,16 +112,14 @@ function makeMoon(){
     var initialVelocity =
             Math.sqrt((getGravity() * planetConfig.LARGE_BODY_MASS.val) / radius);
     var dimensions =
-            planetConfig.MOON_SCALE.val *
-            planetConfig.referenceDiameter.val;
+            planetConfig.MOON_SCALE.val * planetConfig.referenceDiameter.val;
     velocity =
         Vec3.multiply(initialVelocity, Vec3.normalize({
             x: 0,
             y: planetConfig.VELOCITY_OFFSET_Y.val,
             z: planetConfig.VELOCITY_OFFSET_Z.val }));
     radius =
-        planetConfig.MOON_RADIUS.val *
-        planetConfig.referenceRadius.val
+        planetConfig.MOON_RADIUS.val * planetConfig.referenceRadius.val
     position =
         Vec3.sum(center, {
             x: radius,
@@ -132,7 +130,6 @@ function makeMoon(){
             type: "Model",
             modelURL: Script.resolvePath("Moon/moon.FBX"),
             position: position,
-            shapeType: 'sphere',
             dimensions: {
                 x: dimensions,
                 y: dimensions,
@@ -147,8 +144,7 @@ function makeMoon(){
             var between =
                 Vec3.subtract(position, center);
             var speed =
-                computeAcceleration(radius) *
-                deltaTime;
+                computeAcceleration(radius) * deltaTime;
             var vel =
                 Vec3.multiply(speed, Vec3.normalize(between));
             // Update velocity and position
