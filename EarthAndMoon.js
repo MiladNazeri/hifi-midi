@@ -35,10 +35,10 @@ var tablet =
 
 var button =
         tablet.addButton({
-        // icon: ICONS.icon,
-        // activeIcon: ICONS.activeIcon,
-        text: 'planet',
-        sortOrder: 1 });
+            // icon: ICONS.icon,
+            // activeIcon: ICONS.activeIcon,
+            text: 'planet',
+            sortOrder: 1 });
 
 function onClicked() {
     if (buttonActivated) {
