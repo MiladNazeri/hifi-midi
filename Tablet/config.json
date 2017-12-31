@@ -1,0 +1,11 @@
+{
+    "DAMPING": {
+        "min": 0,
+        "max": 50,
+        "val": 0.0,
+        "step": 1,
+        "reset": true,
+        "fieldTitle": "DAMPING: ",
+        "id": "DAMPING"
+    }
+}
