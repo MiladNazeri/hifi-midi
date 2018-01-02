@@ -68,6 +68,7 @@ function makeVec3(x,y,z){
 
 function lerp(InputLow, InputHigh, OutputLow, OutputHigh, Input) {
     return ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow; }
+
 function sinCosMaker(type, opArray, transformCallback){
     // opArray = ['accum', 'type', vel]
     switch (type){
@@ -78,6 +79,7 @@ function sinCosMaker(type, opArray, transformCallback){
             return transformCallback(
                 Math.cos(op(opArray[0], opArray[1], opArray[2])) );
         default: } }
+
 function makeSinVector(scalar){
     var vec = makeVec3(
         lerp(1,127, 0.1,1,scalar),
@@ -85,6 +87,7 @@ function makeSinVector(scalar){
         lerp(1,127, 0.1,1,scalar) );
     // log("makeSinvector::out", vec);
     return vec; }
+
 function makeSinVector2(scalar){
     var vec = makeVec3(
         sinCosMaker(
@@ -97,8 +100,7 @@ function makeSinVector2(scalar){
             [scalar, '*', 1],
             transformValue(1, transformMultiply, 0) ) );
     log("makeSinvector::out", vec);
-    return vec;
-}
+    return vec; }
 
 function makeProps(arrayPropsArray){
     var props = {};
@@ -124,9 +126,11 @@ function getEntityIds(distance){
 function transformValue(scalar, transformFunction, offset){
     return function(sinValue){
         return transformFunction(sinValue, scalar, offset); }; }
+
 function transformMultiply(sinValue, value, offset ){
     // log('value', sinValue * value);
     return (sinValue * value) + offset; }
+
 function transformDivide(sinValue, value, offset ){
     return (sinValue / value) + offset; }
 
@@ -140,6 +144,7 @@ function entityManipulate(entityId, props){
     // entProps = Entities.getEntityProperties(entityId, ['position','dimensions'] );
     // log('entityManipulate::entProps:post', entProps);
     /* log('entityManipulate::entProps:post', entProps); */ }
+
 function allEntityManipulate(entityArray, propsArray){
     // log('entityArray', entityArray);
     // log('propsArray', propsArray);
@@ -153,6 +158,7 @@ function allEntityManipulate(entityArray, propsArray){
             function(entity, index){
                 // log('allEntityManipulate::entityArray::propsArray[index])', propsArray[index]);
                 entityManipulate(entity, propsArray[index]); }); } }
+
 function eventManipulate(entityIds, eventData){
     var currentProps = getAllArrayProps(entityIds);
     var arrayProps = entityIds.map(function(item, index){
@@ -168,12 +174,11 @@ function eventManipulate(entityIds, eventData){
         //         'dimensions', Vec3.sum(currentProps[index].dimensions, makeSinVector(eventData.velocity)) ],
         //     [
         //         'position', Vec3.sum(currentProps[index].position, makeSinVector(eventData.velocity)) ] ]; });
-
-
     // log('arrayProps preMakeProps', arrayProps);
     arrayProps = makeAllProps(arrayProps);
     // log('arrayProps', arrayProps);
     allEntityManipulate(entityIds, arrayProps); }
+
 
 /* MIDI EVENTS */
 
@@ -183,4 +188,5 @@ function midiMessageReceived(eventData){
     if (bounceCheckStart(15)) {
         entityList = getEntityIds(500);
         eventManipulate(entityList, eventData); } }
+
 Midi.midiMessage.connect(midiMessageReceived);
