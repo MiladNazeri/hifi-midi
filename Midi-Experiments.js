@@ -39,6 +39,49 @@ function bounceCheck(){
             return false; } }; }
 var bounceCheckStart = bounceCheck();
 
+/* Tablet */
+
+var APP_URL =
+        Script.resolvePath('Tablet/UI.html');
+var buttonActivated =
+        false;
+var tablet =
+        Tablet.getTablet("com.highfidelity.interface.tablet.system");
+var button =
+        tablet.addButton({
+            // icon: ICONS.icon,
+            // activeIcon: ICONS.activeIcon,
+            text: 'appName',
+            sortOrder: 1 });
+
+function onWebEventReceived(event) {
+    var htmlEvent =
+            JSON.parse(event);
+    switch (htmlEvent.type){
+        case 'slider':
+            // config[htmlEvent.id].val = htmlEvent.value;
+            // restart();
+            break;
+        default:
+    }
+}
+
+function onClicked() {
+    if (buttonActivated) {
+        button.editProperties({isActive: false});
+        buttonActivated = false;
+        tablet.gotoHomeScreen();
+        tablet.webEventReceived.disconnect(onWebEventReceived);
+    } else {
+        tablet.gotoWebScreen(APP_URL);
+        tablet.webEventReceived.connect(onWebEventReceived);
+        button.editProperties({isActive: true});
+        buttonActivated = true;
+    }
+}
+
+button.clicked.connect(onClicked);
+
 /* UTIL */
 
 function log(describer, text){
@@ -80,11 +123,11 @@ function sinCosMaker(type, opArray, transformCallback){
                 Math.cos(op(opArray[0], opArray[1], opArray[2])) );
         default: } }
 
-function makeSinVector(scalar){
+function makeLerpVector(scalar){
     var vec = makeVec3(
-        lerp(1,127, 0.1,1,scalar),
-        lerp(1,127, 0.1,1,scalar),
-        lerp(1,127, 0.1,1,scalar) );
+        lerp(1, 127, 1, 3, scalar),
+        lerp(1, 127, 1, 3, scalar),
+        lerp(1, 127, 1, 3, scalar) );
     // log("makeSinvector::out", vec);
     return vec; }
 
@@ -168,7 +211,10 @@ function eventManipulate(entityIds, eventData){
         // log('vec3', makeSinVector(eventData.velocity));
         return [
             [
-                'dimensions', Vec3.sum(currentProps[index].dimensions, makeSinVector(eventData.velocity)) ] ]; });
+                // 'dimensions', Vec3.sum(currentProps[index].dimensions, makeLerpVector(eventData.velocity)) ] ]; });
+                'dimensions', makeLerpVector(eventData.velocity) ],
+                'dimensions', makeLerpVector(eventData.velocity) ]; });
+
         // return [
         //     [
         //         'dimensions', Vec3.sum(currentProps[index].dimensions, makeSinVector(eventData.velocity)) ],
@@ -185,8 +231,21 @@ function eventManipulate(entityIds, eventData){
 function midiMessageReceived(eventData){
     // console.log("here")
     // log('eventData', eventData);
-    if (bounceCheckStart(15)) {
+    if (bounceCheckStart(17)) {
         entityList = getEntityIds(500);
         eventManipulate(entityList, eventData); } }
 
 Midi.midiMessage.connect(midiMessageReceived);
+
+
+/* Cleanup */
+
+function scriptEnding() {
+    // Entities.deleteEntity(GenericEntity);
+    // Controller.disableMapping(MAPPING_NAME);
+    // Messages.unsubscribe(CHANNEL_NAME);
+    button.clicked.disconnect(onClicked);
+    Midi.midiMessage.disconnect(midiMessageReceived);
+    tablet.removeButton(button); }
+
+Script.scriptEnding.connect(scriptEnding);

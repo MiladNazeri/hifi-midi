@@ -120,7 +120,7 @@ function eventManipulate(entityIds, eventData){
         [
             'position', makeVec3(
                 sinCosMaker('sin', [eventData.velocity, '*', 100], transformValue(5, transformMultiply, randomize(1,2))),
-                0
+                0,
                 sinCosMaker('sin', [eventData.velocity, '*', 100], transformValue(5, transformMultiply, randomize(1,2))) )] ];
 
     allEntityManipulate(
