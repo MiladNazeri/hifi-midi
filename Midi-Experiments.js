@@ -177,10 +177,231 @@ function eventManipulate(entityIds, eventData){
 
 /* MIDI EVENTS */
 
+var pitch = 0;
+var pitch2 = 0;
+var pitch3 = 0;
+var pitch4 = 0;
+var roll = 0;
+var roll2 = 0;
+var roll3 = 0;
+var roll4 = 0;
+var yaw = 0;
+var yaw2 = 0;
+var yaw3 = 0;
+var yaw4 = 0;
+var sensitivity = 1.0;
+var red = 0;
+var green = 0;
+var blue = 0;
+var intensity = 0;
+
+function LightMaker(id){
+    this.id = id;
+    this.pitch = 0;
+    this.roll = 0;
+    this.yaw = 0;
+    this.red = 0;
+    this.green = 0;
+    this.blue = 0;
+    this.intensity = 0;
+}
+
+var entityIDs = [];
+var myEntities = [];
+var target = "midi-light";
+
+
+function getMyEntities(){
+    entityIDs = Entities.findEntities(MyAvatar.position, 1000);
+    for (var i = 0; i < entityIDs.length; i++){
+    	var props = Entities.getEntityProperties(entityIDs[i]);
+ 	    if (props.name.indexOf(target) !== -1) {
+    		myEntities.push({name:props.name, entityID:entityIDs[i], control: false, controlProps: new LightMaker()});
+    	}
+        print("myEntities", JSON.stringify(myEntities));
+    }
+}
+
+getMyEntities();
+
 function midiMessageReceived(eventData){
     // console.log("here")
     // log('eventData', eventData);
-    if (bounceCheckStart(15)) {
-        entityList = getEntityIds(500);
-        eventManipulate(entityList, eventData); } }
+    if (bounceCheckStart(50)) {
+        if (eventData.note === 21){
+            myEntities.forEach(function(entity){
+                // print("in for each");
+                if (entity.control === true){
+                    // print("in true");
+                    // print("entity:", JSON.stringify(entity));
+
+                    entity.controlProps.yaw = (eventData.velocity*2-128)*sensitivity;
+                    // print("entity.controlProps.pitch:", entity.controlProps.pitch);
+                    // print("entity.controlProps.yaw:", entity.controlProps.yaw);
+                    // print("entity.controlProps.roll:", entity.controlProps.roll);
+
+                    var newRotation = Quat.fromPitchYawRollDegrees(entity.controlProps.pitch, entity.controlProps.yaw, entity.controlProps.roll);
+                    // print("newRotation", JSON.stringify(newRotation) );
+                    // print("")
+                    Entities.editEntity(entity.entityID, {"rotation": newRotation});
+                }
+            });
+        }
+        // if (eventData.note === 22){
+        //     pitch = (eventData.velocity*2-128)*sensitivity;
+        //     var newRotation = Quat.fromPitchYawRollDegrees(pitch, yaw, roll);
+        //     Entities.editEntity('{83e598f9-2441-4be3-898b-cce4af185afb}', {"rotation": newRotation});
+        // }
+        if (eventData.note === 22){
+            myEntities.forEach(function(entity){
+                if (entity.control === true){
+                    entity.controlProps.pitch = (eventData.velocity*2-128)*sensitivity;
+                    var newRotation = Quat.fromPitchYawRollDegrees(entity.controlProps.pitch, entity.controlProps.yaw, entity.controlProps.roll);
+                    Entities.editEntity(entity.entityID, {"rotation": newRotation});
+                }
+            });
+        }
+        if (eventData.note === 23){
+            myEntities.forEach(function(entity){
+                if (entity.control === true){
+                    entity.controlProps.roll = (eventData.velocity*2-128)*sensitivity;
+                    var newRotation = Quat.fromPitchYawRollDegrees(entity.controlProps.pitch, entity.controlProps.yaw, entity.controlProps.roll);
+                    Entities.editEntity(entity.entityID, {"rotation": newRotation});
+                }
+            });
+        }
+        if (eventData.note === 24){
+            myEntities.forEach(function(entity){
+                if (entity.control === true){
+                    entity.controlProps.intensity = lerp(1,127,0,255,eventData.velocity);
+                    Entities.editEntity(entity.entityID, {"intensity": entity.controlProps.intensity});
+                }
+            });
+        }
+        // if (eventData.note === 25){
+        //     green = lerp(1,127,0,255,eventData.velocity);
+        //     var color = { red: red, green: green, blue: blue};
+        //     Entities.editEntity('{83e598f9-2441-4be3-898b-cce4af185afb}', {"color": color});
+        // }
+        if (eventData.note === 25){
+            myEntities.forEach(function(entity){
+                if (entity.control === true){
+                    entity.controlProps.green = lerp(1,127,0,255,eventData.velocity);
+                    var color = {
+                        red: entity.controlProps.red,
+                        green: entity.controlProps.green,
+                        blue: entity.controlProps.blue
+                    };
+                    Entities.editEntity(entity.entityID, {"color": color});
+                }
+            });
+        }
+        if (eventData.note === 26){
+            myEntities.forEach(function(entity){
+                if (entity.control === true){
+                    entity.controlProps.blue = lerp(1,127,0,255,eventData.velocity);
+                    var color = {
+                        red: entity.controlProps.red,
+                        green: entity.controlProps.green,
+                        blue: entity.controlProps.blue
+                    };
+                    Entities.editEntity(entity.entityID, {"color": color});
+                }
+            });
+        }
+        if (eventData.note === 27){
+            myEntities.forEach(function(entity){
+                if (entity.control === true){
+                    entity.controlProps.red = lerp(1,127,0,255,eventData.velocity);
+                    var color = {
+                        red: entity.controlProps.red,
+                        green: entity.controlProps.green,
+                        blue: entity.controlProps.blue
+                    };
+                    Entities.editEntity(entity.entityID, {"color": color});
+                }
+            });
+        }
+        if (eventData.note === 40){
+            myEntities.forEach(function(entity, index){
+
+                // print("index:", index);
+                // print("entity.control-pre:", entity.control);
+                if (index === 0){
+                    // print("CORRECT");
+                    // print("entity:", JSON.stringify(entity));
+                    entity.control = true;
+                } else {
+                    entity.control = false;
+                }
+                // print("entity.control-post:", entity.control);
+            });
+        }
+        if (eventData.note === 41){
+            myEntities.forEach(function(entity, index){
+                if (index === 1){
+                    entity.control = true;
+                } else {
+                    entity.control = false;
+                }
+            });
+        }
+        if (eventData.note === 42){
+            myEntities.forEach(function(entity, index){
+                if (index === 2){
+                    entity.control = true;
+                } else {
+                    entity.control = false;
+                }
+            });
+        }
+        if (eventData.note === 43){
+            myEntities.forEach(function(entity, index){
+                if (index === 3){
+                    entity.control = true;
+                } else {
+                    entity.control = false;
+                }
+            });
+        }
+        if (eventData.note === 36){
+            myEntities.forEach(function(entity, index){
+                entity.control = true;
+            });
+        }
+        if (eventData.note === 37){
+            myEntities.forEach(function(entity, index){
+                if (index % 2 === 0){
+                    entity.control = true;
+                } else {
+                    entity.control = false;
+                }
+            });
+        }
+        if (eventData.note === 38){
+            myEntities.forEach(function(entity, index){
+                if (index % 2 === 0){
+                    entity.control = false;
+                } else {
+                    entity.control = true;
+                }
+            });
+        }
+        if (eventData.note === 39){
+            myEntities.forEach(function(entity){
+                var oldIntensity = entity.controlProps.intensity;
+                entity.controlProps.intensity = 0;
+                Entities.editEntity(entity.entityID, {"intensity": entity.controlProps.intensity});
+                Script.setTimeout(function(){
+                    Entities.editEntity(entity.entityID, {"intensity": oldIntensity});
+                }, 50);
+                entity.controlProps.intensity = oldIntensity;
+            });
+        }
+
+
+        // entityList = getEntityIds(500);
+        // eventManipulate(entityList, eventData);
+    }
+}
 Midi.midiMessage.connect(midiMessageReceived);
