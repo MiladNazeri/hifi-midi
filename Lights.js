@@ -292,9 +292,9 @@ function newUuidTarget(){
 
 function lightSource(){
 	print("Creating Spotlight");
-    var pos = {x:positionXOffset,y:1.5,z:positionZOffset}
+    // var pos = {x:positionXOffset,y:1.5,z:positionZOffset}
     var ambLight = {x:positionXOffset,y:0.5,z:positionZOffset}
-	// var pos = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 1, z: -2}));
+	var pos = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 2, z: -2}));
 
 	box1 = Entities.addEntity({
 		name: "Spot Light Box 1",
