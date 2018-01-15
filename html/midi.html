@@ -1,0 +1,79 @@
+<!--
+//  midi.html
+//
+//  Created by Milad Nazeri on 14 Jan 2017.
+//  Copyright 2017 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+-->
+
+<html>
+    <head>
+        <title>Midi</title>
+        <link rel="stylesheet" type="text/css" href="css/edit-style.css">
+        <link rel="stylesheet" type="text/css" href="css/midi.css">
+        <script type="text/javascript" src="js/midi.js"></script>
+    </head>
+    <body>
+            <div class="title">
+                <label>Midi</label>
+            </div>
+            <hr />
+            <div id="controls">
+                <div id="table-container">
+                    <table id="controls-table">
+                        <colgroup>
+                            <col />
+                            <col id="unload-column" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Channel</th>
+                                <th>control Number</th>
+                                <th>Input min</th>
+                                <th>Input max</th>
+                                <th>Output min</th>
+                                <th>Output max</th>
+                                <th>Entitiy Group</th>
+                                <th>Properties Group</th>
+                                <th>PowerUps Group</th>
+                                <th>Functions Group</th>
+                            </tr>
+                        </thead>
+                        <thead>
+                        <tbody id="controls-list"></tbody>
+                        <tbody id="instructions" class="hidden"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td id="footer-text" colspan="2">
+                                    extra info <span id="players-unused"></span>
+                                    <span id="show-info-button"></span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div id="spinner" class="hidden">
+                <img src="img/loader-red-countdown-ring.gif" />
+                <span id="countdown-number">3</span>
+            </div>
+            <div id="midi-controls">
+                <div id="load-container">
+                    <input id="load-button" type="button" value="Load" disabled />
+                </div>
+                <div id="record-container">
+                    <input id="record-button" class="red" type="button" value="Record" />
+                </div>
+                <div id="checkbox-container" class="property checkbox">
+                    <input type="checkbox" id="finish-on-open">
+                    <label for="finish-on-open" id="finish-on-open-label">Stop recording automatically when ...</label>
+                </div>
+            </div>
+            <script>
+                onBodyLoaded();
+            </script>
+    </body>
+</html>

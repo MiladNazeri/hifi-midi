@@ -1,0 +1,209 @@
+/*
+//  midi.css
+//
+//  Created by Milad Nazeri on 14 Jan 2017.
+//  Copyright 2017 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+*/
+
+body {
+    padding: 0;
+    overflow: hidden;
+}
+
+.title {
+    padding-left: 21px;
+}
+
+.title label {
+    font-size: 18px;
+    position: relative;
+    top: 12px;
+}
+
+.hidden {
+    display: none
+}
+
+#controls {
+    height: 100%;
+    position: relative;
+    box-sizing: border-box;
+    padding: 51px 0 185px 0;
+    margin: 0 21px 0 21px;
+}
+
+#controls #table-container {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-sizing: : border-box;
+    border-left: 2px solid #575757;
+    border-right: 2px solid #575757;
+    background-color: #2e2e2e;
+}
+
+#controls table {
+    border: none;
+}
+
+#controls thead {
+    position: absolute;
+    top: 21px;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid #575757;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    border-bottom: 1px solid #575757;
+    word-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#controls table col#unload-column {
+    width: 100px;
+}
+
+#controls thead th:last-child {
+    width: 100px;
+}
+
+#controls table td {
+    text-overflow: ellipsis;
+}
+
+#controls table td:nth-child(2) {
+    text-align: center;
+}
+
+#controls tbody tr.filler td {
+    height: auto;
+    border-top: 1px solid #1c1c1c;
+}
+
+#controls-list input {
+    height: 22px;
+    width: 22px;
+    min-width: 22px;
+    font-size: 16px;
+    padding: 0 1px 0 0;
+}
+
+#controls tfoot {
+    position: absolute;
+    bottom: 159px;
+    left: 0;
+    width: 100%l
+    box-sizing: border-box;;
+    border: 2px solid #575757;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border-top: 1px solid #575757;
+}
+
+#controls tfoot tr, #controls tfoot td {
+    background: none;
+}
+
+#spinner {
+    text-align: center;
+    margin-top: 25%;
+    position: relative;
+}
+
+#spinner span {
+    display: block;
+    position: relative;
+    top: -101px;
+    color: #e2334d;
+    font-size: 60px;
+    font-weight: bold;
+}
+
+#controls tfoot tr {
+    height: 24px;
+}
+
+#instructions td {
+    white-space: normal;
+}
+
+#instructions h1 {
+    font-size: 16px;
+    margin-top: 28px;
+}
+
+#instructions h1 + p {
+    margin-top: 14px;
+}
+
+#instructions p, #instructions ul {
+    margin-top: 21px;
+    font-size: 14px;
+}
+
+#instructions p {
+    font-family: Raleway-Bold;
+}
+
+#instructions ul {
+    font-family: Raleway-SemiBold;
+    margin-left: 21px;
+    font-weight: normal;
+}
+
+#instructions li {
+    margin-top: 7px;
+}
+
+#instructions ul input {
+    margin-left: 1px;
+    margin-top: 6px;
+    font-size: 14px;
+    padding: 0 7px;
+}
+
+#show-info-button {
+    font-family: HiFi-Glyphs;
+    font-size: 32px;
+    height: 16px;
+    line-height: 16px;
+    display: inline-block;
+    position: absolute;
+    top: 15px;
+    right: 5px;
+    margin-top: -11px;
+    margin-left: 7px;
+}
+
+#show-info-button:hover {
+    color: #00b4ef;
+}
+
+#midi-controls {
+    position: absolute;
+    bottom: 7px;
+    width: 100%;
+}
+
+#midi-controls #load-container {
+    position: absolute;
+    left: 21px;
+}
+
+#midi-controls #record-container {
+    text-align: center;
+}
+
+#midi-controls #checkbox-container {
+    margin-top: 31px;
+}
+
+#midi-controls div.property {
+    padding-left: 21px;
+}
