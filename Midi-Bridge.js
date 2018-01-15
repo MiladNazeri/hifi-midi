@@ -34,14 +34,13 @@
         Properties,
         Utils,
 
-
     function log(describer, obj) {
         obj = obj || '';
         print('&======');
         print(APP_NAME + ": \n" + describer);
         print(JSON.stringify(obj));
         print('======&');
-    }
+    };
 
     function error(message, info) {
         print('&======');
@@ -49,10 +48,10 @@
         Window.alert(message);
         print('======&');
     }
-        // HIFI_MIDI_BRIDGE_CHANNEL = "Hifi-Midi-Bridge-Channel",
+    // HIFI_MIDI_BRIDGE_CHANNEL = "Hifi-Midi-Bridge-Channel",
 
     Controls = (function () {
-        var IDLE = 0
+        var IDLE = 0;
 
         function setUp(){
 
@@ -76,7 +75,6 @@
         function setUp(){
             Messages.messageReceived.connect(onMessageReceived);
             Messages.subscribe(HIFI_MIDI_DEVICES_CHANNEL);
-
         }
 
         function onMessageReceived(channel, message, sender) {
