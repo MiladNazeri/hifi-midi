@@ -17,7 +17,7 @@
     var APP_NAME = "MIDI-BRIDGE",
         APP_ICON_INACTIVE = "icons/tablet-icons/avatar-record-i.svg",
         APP_ICON_ACTIVE = "icons/tablet-icons/avatar-record-a.svg",
-        APP_URL = Script.resolvePath("html/record.html"),
+        APP_URL = Script.resolvePath("html/midi.html"),
         isDialogDisplayed = false,
         tablet,
         button,
@@ -52,53 +52,241 @@
         // HIFI_MIDI_BRIDGE_CHANNEL = "Hifi-Midi-Bridge-Channel",
 
     Controls = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Devices = (function () {
+        var HIFI_MIDI_DEVICES_CHANNEL = "Hifi-Midi-Devices-Channel",
+            DEVICES_COMMAND_ERROR = "error"
 
-    })
+
+        function setUp(){
+            Messages.messageReceived.connect(onMessageReceived);
+            Messages.subscribe(HIFI_MIDI_DEVICES_CHANNEL);
+
+        }
+
+        function onMessageReceived(channel, message, sender) {
+            var index;
+
+            if (channel !== HIFI_MIDI_DEVICES_CHANNEL) {
+                return
+            }
+
+            message = json.parse(message);
+
+            if (message.command === DEVICES_COMMAND_ERROR) {
+                if (message.user === MyAvatar.sessionUUID) {
+                    error(message.message);
+                }
+            } else {
+
+            }
+        }
+
+        function tearDown() {
+            Messages.messageReceived.disconnect(onMessageReceived);
+            Messages.unsubscribe(HIFI_RECORDER_CHANNEL);
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Dialog = (function () {
+        var isFinishedOnOpen = false,
+            EVENT_BRIDGE_TYPE = "midi",
+            BODY_LOADED_ACTION = "bodyLoaded",
+            USING_TOOLBAR_ACTION = "usingToolbar",
+            FINISH_ON_OPEN_ACTION = "finishOnOpen"
 
-    })
+        function isUsingToolbar() {
+            return ((HMD.active && Settings.getValue("hmdTabletBecomesToolbar"))
+                || (!HMD.active && Settings.getValue("desktopTabletBecomesToolbar")));
+        }
+
+        function onWebEventReceived(data) {
+            var message,
+
+            mmessage = JSON.parse(data);
+            if (message.type === EVENT_BRIDGE_TYPE) {
+                switch (message.action) {
+                    case BODY_LOADED_ACTION:
+                        var usingToolbarEvent = {
+                            type: EVENT_BRIDGE_TYPE,
+                            action: USING_TOOLBAR_ACTION,
+                            value: isUsingToolbar()
+                        };
+                        var usingToolbarMessage = JSON.stringify(usingToolbarEvent);
+                        tablet.emitScriptEvent(usingToolbarMessage);
+                        var FinishOnOpenAction = {
+                            type: EVENT_BRIDGE_TYPE,
+                            action: USING_TOOLBAR_ACTION,
+                            value: isUsingToolbar()
+                        };
+                        break;
+                }
+            }
+        }
+
+        function setUp(){
+            // isFinishOnOpen = Settings.getValue(SETTINGS_FINISH_ON_OPEN) === true;
+            tablet.webEventReceived.connect(onWebEventReceived);
+        }
+
+        function tearDown() {
+            tablet.webEventReceived.disconnect(onWebEventReceived);
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Entities = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Events = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Functions = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Midi = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     PowerUps = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Properties = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     Utils = (function () {
+        var IDLE = 0
 
-    })
+        function setUp(){
+
+        }
+
+        function tearDown() {
+
+        }
+
+        return {
+            setUp: setUp,
+            tearDown: tearDown
+        };
+    }());
 
     function onTabletScreenChanged(type, url) {
         // Opened/closed dialog in tablet or window.
         // #REVISIT
         var MIDI_URL = "/html/midi.html";
 
-        if (type === "Web" && url.slice(-MIDI_URL.length) === RECORD_URL {
+        if (type === "Web" && url.slice(-MIDI_URL.length) === MIDI_URL) {
             if (Dialog.finishOnOpen()) {
-                //Timers
+                // Timers
             }
             isDialogDisplayed = true;
         } else {
