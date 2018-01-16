@@ -18,17 +18,31 @@ var isUsingToolbar = false,
     elInstructions,
     elHideInfoButton,
     elShowInfoButton,
+    isDisplayingInstructions,
     elSpinner;
 
-    function showInstructions() {
+function showInstructions() {
         isDisplayingInstructions = true;
         updateInstructions();
     }
 
-    function hideInstructions() {
+function hideInstructions() {
         isDisplayingInstructions = false;
         updateInstructions();
     }
+
+function updateInstructions() {
+    // elHideInfoButton.classList.add("hidden");
+    // elShowInfoButton.classList.add("hidden");
+    if (isDisplayingInstructions) {
+        elControlsList.classList.add("hidden");
+        elInstructions.classList.remove("hidden");
+    } else {
+        elInstructions.classList.add("hidden");
+        elControlsList.classList.remove("hidden");
+    }
+}
+
 
 function onScriptEventReceived(data) {
     var message = JSON.parse(data);
