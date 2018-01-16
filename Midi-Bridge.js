@@ -6,34 +6,34 @@ Adding setup for utility to do inits
 
 */
 
-if (typeof Object.assign != 'function') {
-  // Must be writable: true, enumerable: false, configurable: true
-  Object.defineProperty(Object, "assign", {
-    value: function assign(target, varArgs) { // .length of function is 2
-      'use strict';
-      if (target == null) { // TypeError if undefined or null
-        throw new TypeError('Cannot convert undefined or null to object');
-      }
-
-      var to = Object(target);
-
-      for (var index = 1; index < arguments.length; index++) {
-        var nextSource = arguments[index];
-
-        if (nextSource != null) { // Skip over if undefined or null
-          for (var nextKey in nextSource) {
-            // Avoid bugs when hasOwnProperty is shadowed
-            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-              to[nextKey] = nextSource[nextKey];
+if (typeof Object.assign !== 'function') {
+    // Must be writable: true, enumerable: false, configurable: true
+    Object.defineProperty(Object, "assign", {
+        value: function assign(target, varArgs) { // .length of function is 2
+            'use strict';
+            if (target == null) { // TypeError if undefined or null
+                throw new TypeError('Cannot convert undefined or null to object');
             }
-          }
-        }
-      }
-      return to;
-    },
-    writable: true,
-    configurable: true
-  });
+
+            var to = Object(target);
+
+            for (var index = 1; index < arguments.length; index++) {
+                var nextSource = arguments[index];
+
+                if (nextSource != null) { // Skip over if undefined or null
+                    for (var nextKey in nextSource) {
+                        // Avoid bugs when hasOwnProperty is shadowed
+                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                            to[nextKey] = nextSource[nextKey];
+                        }
+                    }
+                }
+            }
+            return to;
+        },
+        writable: true,
+        configurable: true
+    });
 }
 
 (function () {
@@ -48,15 +48,15 @@ if (typeof Object.assign != 'function') {
         button,
         isConnected,
 
-        Controls
-        Devices,
+        Controls;
+        // Devices,
         Dialog,
-        Entities,
-        Events,
-        Functions,
-        Midi,
-        PowerUps,
-        Properties,
+        EntitiesManager,
+        // Events,
+        // Functions,
+        MidiManager,
+    // PowerUps,
+    // Properties,
         Utils,
 
     function log(describer, obj) {
@@ -85,26 +85,26 @@ if (typeof Object.assign != 'function') {
             CONTROLS_COMMAND_MODIFY = "modify",
             CONTROLS_COMMAND_PIPE = "pipe",
             CONTROLS_COMMAND_REMOVE = "remove",
-            ControlsList = [];
+            ControlsList = ["Test:ControlsList"];
 
         var defaultOptions = {
-                name: "",
-                id: 0,
-                inputMin: 0,
-                inputMax: 255,
-                outputMin: 0,
-                outputMax: 255,
-                currentControlValue: 0,
-                controlGroup: [],
-                channelGroup: [],
-                deviceGroup: [],
-                entityGroup: [],
-                propertiesGroup: [],
-                powerUpsGroup: [],
-                functionsGroup: []
-            }
+            name: "",
+            id: 0,
+            inputMin: 0,
+            inputMax: 255,
+            outputMin: 0,
+            outputMax: 255,
+            currentControlValue: 0,
+            controlGroup: [],
+            channelGroup: [],
+            deviceGroup: [],
+            entityGroup: [],
+            propertiesGroup: [],
+            powerUpsGroup: [],
+            functionsGroup: []
+        };
 
-        function ControlMaker (optionsObj) {
+        function ControlMaker(optionsObj) {
             var combinedOptions = Object.assign({}, defaultOptions, optionsObj);
             for (var key in combinedOptions){
                 this[key] = combinedOptions[key];
@@ -118,16 +118,16 @@ if (typeof Object.assign != 'function') {
                 'entity': this.entityGroup,
                 'properties': this.propertiesGroup,
                 'powerUps': this.powerUpsGroup,
-                'functions': this.functionsGroup,
+                'functions': this.functionsGroup
             },
             add: function (groupType, itemToAdd) {
                 this.groupMap[groupType].push(itemToAdd);
-                },
+            },
             copy: function (groupType, indexToCopy, newProps) {
                 var itemToCopy = this.groupMap[groupType][indexToCopy];
                 var newItem = Object.assign({}, itemToCopy, newProps);
                 this.groupMap[groupType].push(itemToCopy);
-                },
+            },
             find: function (groupType, query) {
                 var listToSearch = this.groupMap[groupType];
                 for (var i = 0; i < listToSeasrch.length; i++){
@@ -138,19 +138,19 @@ if (typeof Object.assign != 'function') {
             },
             lookup: function (groupType, indexToLookUp) {
                 return this.groupMap[groupType][indexToLookUp];
-                },
+            },
             modify: function(groupType, indexToModify, newProps) {
                 var itemToModify = this.groupMap[groupType][indexToModify];
                 var newItem = Object.assign({}, itemToModify, newProps);
                 this.groupMap[groupType][indexToModify] = newItem;
-                },
+            },
             pipe: function(groupType, indexToPipe, whereToPipe) {
                 var itemToPipe = this.groupMap[groupType][indexToPipe];
-                },
+            },
             remove: function(groupType, indexToRemove) {
-                var itemToRemove = this.groupMap[groupType].splice(indexToRemove,1)
-                },
-        }
+                var itemToRemove = this.groupMap[groupType].splice(indexToRemove,1);
+            }
+        };
 
         function onMessageReceived(channel, message, sender) {
             var index;
@@ -161,7 +161,7 @@ if (typeof Object.assign != 'function') {
 
             message = json.parse(message);
 
-            if (message.command === CHANNEL_COMMAND_ERROR) {
+            if (message.command === CONTROLS_COMMAND_ERROR) {
                 if (message.user === MyAvatar.sessionUUID) {
                     error(message.message);
                 }
@@ -186,11 +186,12 @@ if (typeof Object.assign != 'function') {
         }
 
         return {
+            reset: reset,
             setUp: setUp,
             tearDown: tearDown
         };
     }());
-
+    /*
     Devices = (function () {
         var HIFI_MIDI_DEVICES_CHANNEL = "Hifi-Midi-Devices-Channel",
             DEVICES_COMMAND_ERROR = "error",
@@ -204,13 +205,13 @@ if (typeof Object.assign != 'function') {
             DevicesList = [];
 
         var defaultOptions = {
-                name: "",
-                id: 0,
-                midiIn: "",
-                midiOut: ""
-            }
+            name: "",
+            id: 0,
+            midiIn: "",
+            midiOut: ""
+        };
 
-        function DeviceMaker (optionsObj) {
+        function DeviceMaker(optionsObj) {
             var combinedOptions = Object.assign({}, defaultOptions, optionsObj);
             for (var key in combinedOptions){
                 this[key] = combinedOptions[key];
@@ -219,24 +220,24 @@ if (typeof Object.assign != 'function') {
         DeviceMaker.prototype = {
             groupMap: {
                 'midiIn': this.midiIn,
-                'midiOut': this.midiOut,
+                'midiOut': this.midiOut
             },
             add: function (groupType, itemToAdd) {
                 this.groupMap[groupType] = itemToAdd;
-                },
+            },
             lookup: function (groupType, indexToLookUp) {
                 return this.groupMap[groupType];
-                },
+            },
             modify: function(groupType, newProp) {
                 this.groupMap[groupType] = newProp;
-                },
+            },
             pipe: function(groupType, indexToPipe, whereToPipe) {
                 var itemToPipe = this.groupMap[groupType];
-                },
+            },
             remove: function(groupType, indexToRemove) {
                 this.groupMap[groupType] = "";
-                },
-        }
+            }
+        };
 
         function onMessageReceived(channel, message, sender) {
             var index;
@@ -276,14 +277,15 @@ if (typeof Object.assign != 'function') {
             tearDown: tearDown
         };
     }());
-
+    */
     Dialog = (function () {
         var isFinishedOnOpen = false,
             EVENT_BRIDGE_TYPE = "midi",
             BODY_LOADED_ACTION = "bodyLoaded",
             USING_TOOLBAR_ACTION = "usingToolbar",
-            UPDATE_CONTROLLERS_ACTION = "updateControllers";
-            UPDATE_DEVICES_ACTION = "updateDevices";
+            UPDATE_CONTROLLERS_ACTION = "updateControllers",
+            UPDATE_DEVICES_ACTION = "updateDevices",
+            UPDATE_MIDI_ACTION = "updateMidi",
             UPDATE_ENTITIES_ACTION = "updateEntities";
 
         function isUsingToolbar() {
@@ -307,7 +309,7 @@ if (typeof Object.assign != 'function') {
             }));
 
         }
-
+        /*
         function updateDevicesDetails(devices){
             var length,
                 i;
@@ -324,12 +326,12 @@ if (typeof Object.assign != 'function') {
             }));
 
         }
-
-        function updateEntitiesDetails(entities){
+        */
+        function updateEntitiesDetails(entitiesList){
             var length,
                 i;
             for (i = 0, length = entities.length; i < length; i += 1) {
-                if (entities[i]) {
+                if (entitiesList[i]) {
 
                 }
             }
@@ -337,7 +339,24 @@ if (typeof Object.assign != 'function') {
             tablet.emitScriptEvent(JSON.stringify({
                 type: EVENT_BRIDGE_TYPE,
                 action: UPDATE_DEVICES_ACTION,
-                value: JSON.stringify(entities)
+                value: JSON.stringify(entitiesList)
+            }));
+
+        }
+
+        function updateMidiDetails(midiList){
+            var length,
+                i;
+            for (i = 0, length = midiList.length; i < length; i += 1) {
+                if (midiList[i]) {
+
+                }
+            }
+
+            tablet.emitScriptEvent(JSON.stringify({
+                type: EVENT_BRIDGE_TYPE,
+                action: UPDATE_DEVICES_ACTION,
+                value: JSON.stringify(midiList)
             }));
 
         }
@@ -345,7 +364,7 @@ if (typeof Object.assign != 'function') {
         function onWebEventReceived(data) {
             var message,
 
-            mmessage = JSON.parse(data);
+                mmessage = JSON.parse(data);
             if (message.type === EVENT_BRIDGE_TYPE) {
                 switch (message.action) {
                     case BODY_LOADED_ACTION:
@@ -362,6 +381,14 @@ if (typeof Object.assign != 'function') {
                             value: isUsingToolbar()
                         };
                         break;
+                    case UPDATE_CONTROLLERS_ACTION:
+                        break;
+                    // case UPDATE_DEVICES_ACTION:
+                        // break;
+                    case UPDATE_MIDI_ACTION:
+                        break;
+                    case UPDATE_ENTITIES_ACTION:
+                        break;
                 }
             }
         }
@@ -376,13 +403,15 @@ if (typeof Object.assign != 'function') {
         }
 
         return {
+            updateMidiDetails: updateMidiDetails,
+            updateEntitiesDetails: updateEntitiesDetails,
             updateControllerDetails: updateControllerDetails,
             setUp: setUp,
             tearDown: tearDown
         };
     }());
 
-    Entities = (function () {
+    EntitiesManager = (function () {
         var HIFI_MIDI_ENTITIES_CHANNEL = "Hifi-Midi-Entities-Channel",
             ENTITIES_COMMAND_ERROR = "error",
             ENTITIES_COMMAND_ADD = "add",
@@ -392,16 +421,16 @@ if (typeof Object.assign != 'function') {
             ENTITIES_COMMAND_MODIFY = "modify",
             ENTITIES_COMMAND_PIPE = "pipe",
             ENTITIES_COMMAND_REMOVE = "remove",
-            EntitiesList = [];
+            EntitiesList = ["Test:EntitiesList"];
 
         var defaultOptions = {
-                name: "",
-                id: 0,
-                entityID: "",
-                currentProps: {}
-            }
+            name: "",
+            id: 0,
+            entityID: "",
+            currentProps: {}
+        };
 
-        function EntityMaker (optionsObj) {
+        function EntityMaker(optionsObj) {
             var combinedOptions = Object.assign({}, defaultOptions, optionsObj);
             for (var key in combinedOptions){
                 this[key] = combinedOptions[key];
@@ -410,24 +439,24 @@ if (typeof Object.assign != 'function') {
         EntityMaker.prototype = {
             groupMap: {
                 'entityID': this.entityID,
-                'currentProps': this.currentProps,
+                'currentProps': this.currentProps
             },
             add: function (groupType, itemToAdd) {
                 this.groupMap[groupType] = itemToAdd;
-                },
+            },
             lookup: function (groupType, indexToLookUp) {
                 return this.groupMap[groupType];
-                },
+            },
             modify: function(groupType, newProp) {
                 this.groupMap[groupType] = newProp;
-                },
+            },
             pipe: function(groupType, indexToPipe, whereToPipe) {
                 var itemToPipe = this.groupMap[groupType];
-                },
+            },
             remove: function(groupType, indexToRemove) {
                 this.groupMap[groupType] = "";
-                },
-        }
+            }
+        };
 
         function onMessageReceived(channel, message, sender) {
             var index;
@@ -454,15 +483,16 @@ if (typeof Object.assign != 'function') {
 
         function setUp(){
             Messages.messageReceived.connect(onMessageReceived);
-            Messages.subscribe(HIFI_MIDI_DEVICES_CHANNEL);
+            Messages.subscribe(HIFI_MIDI_ENTITIES_CHANNEL);
         }
 
         function tearDown() {
-            Messages.unsubscribe(HIFI_MIDI_DEVICES_CHANNEL);
+            Messages.unsubscribe(HIFI_MIDI_ENTITIES_CHANNEL);
             Messages.messageReceived.disconnect(onMessageReceived);
         }
 
         return {
+            reset: reset,
             setUp: setUp,
             tearDown: tearDown
         };
@@ -503,8 +533,7 @@ if (typeof Object.assign != 'function') {
         };
     }());
     */
-    Midi = (function () {
-        Midi MIDI
+    MidiManager = (function () {
         var HIFI_MIDI_MIDI_CHANNEL = "Hifi-Midi-Midi-Channel",
             MIDI_COMMAND_ERROR = "error",
             MIDI_COMMAND_ADD = "add",
@@ -514,71 +543,142 @@ if (typeof Object.assign != 'function') {
             MIDI_COMMAND_MODIFY = "modify",
             MIDI_COMMAND_PIPE = "pipe",
             MIDI_COMMAND_REMOVE = "remove",
-            MidiList = [];
+            MIDI_INPUT = false,
+            MIDI_OUTPUT = true,
+            MIDI_ENABLE = true,
+            MIDI_DISABLE = false,
+            midiInDeviceList,
+            midiOutDeviceList,
+            MidiList = ["Test:MidiList"];
 
         var defaultOptions = {
-                name: "",
-                id: 0,
-                inputMin: 0,
-                inputMax: 255,
-                outputMin: 0,
-                outputMax: 255,
-                currentControlValue: 0,
-                controlGroup: [],
-                channelGroup: [],
-                deviceGroup: [],
-                entityGroup: [],
-                propertiesGroup: [],
-                powerUpsGroup: [],
-                functionsGroup: []
-            }
+            name: "",
+            id: 0,
+            midiInDeviceId: 0,
+            midiOutDeviceId: 0,
+            midiInDevice: "",
+            midiOutDevice: "",
+            midiInDeviceSelected: false,
+            midiOutDeviceSelected: false,
+            midiInBlock: false,
+            midiOutBlock: false
+        };
 
-        function MidiMaker (optionsObj) {
+        function MidiMaker(optionsObj) {
             var combinedOptions = Object.assign({}, defaultOptions, optionsObj);
             for (var key in combinedOptions){
                 this[key] = combinedOptions[key];
             }
         }
-        ControlMaker.prototype = {
+
+        MidiMaker.prototype = {
             groupMap: {
-                'control': this.controlGroup,
-                'channel': this.channelGroup,
-                'device': this.deviceGroup,
-                'entity': this.entityGroup,
-                'properties': this.propertiesGroup,
-                'powerUps': this.powerUpsGroup,
-                'functions': this.functionsGroup,
+                'midiInDeviceId': this.midiInDeviceId,
+                'midiOutDeviceId': this.midiOutDeviceId,
+                'midiInDevice': this.midiInDevice,
+                'midiOutDevice': this.midiOutDevice
             },
             add: function (groupType, itemToAdd) {
-                this.groupMap[groupType].push(itemToAdd);
-                },
-            copy: function (groupType, indexToCopy, newProps) {
-                var itemToCopy = this.groupMap[groupType][indexToCopy];
-                var newItem = Object.assign({}, itemToCopy, newProps);
-                this.groupMap[groupType].push(itemToCopy);
-                },
-            find: function (groupType, query) {
-                var listToSearch = this.groupMap[groupType];
-                for (var i = 0; i < listToSeasrch.length; i++){
-                    if (listToSearch[i].indexOf(query) != -1) {
-                        return i;
-                    }
-                }
+                this.groupMap[groupType] = itemToAdd;
             },
             lookup: function (groupType, indexToLookUp) {
-                return this.groupMap[groupType][indexToLookUp];
-                },
-            modify: function(groupType, indexToModify, newProps) {
-                var itemToModify = this.groupMap[groupType][indexToModify];
-                var newItem = Object.assign({}, itemToModify, newProps);
-                this.groupMap[groupType][indexToModify] = newItem;
-                },
+                return this.groupMap[groupType];
+            },
+            modify: function(groupType, newProp) {
+                this.groupMap[groupType] = newProp;
+            },
             pipe: function(groupType, indexToPipe, whereToPipe) {
-                var itemToPipe = this.groupMap[groupType][indexToPipe];
-                },
+                var itemToPipe = this.groupMap[groupType];
+            },
             remove: function(groupType, indexToRemove) {
-                var itemToRemove = this.groupMap[groupType].splice(indexToRemove,1)
-                },
+                this.groupMap[groupType] = "";
+            }
+        };
+
+        var defaultMidiConfigOptions = {
+            thruModeEnable: MIDI_DISABLE,
+        	broadcastEnable: MIDI_DISABLE,
+        	typeNoteOffEnable: MIDI_ENABLE,
+        	typeNoteOnEnable: MIDI_ENABLE,
+        	typePolyKeyPressureEnable: MIDI_DISABLE,
+        	typeControlChangeEnable: MIDI_ENABLE,
+        	typeProgramChangeEnable: MIDI_ENABLE,
+        	typeChanPressureEnable: MIDI_DISABLE,
+        	typePitchBendEnable: MIDI_DISABLE,
+        	typeSystemMessageEnable: MIDI_DISABLE
+        };
+
+        function midiConfig(optionsObj){
+            var combinedOptions = Object.assign({}, defaultMidiConfigOptions, optionsObj);
+            for (var key in combinedOptions){
+                Midi[key] = combinedOptions[key];
+            }
+        	midiHardwareResetReceieved();
+        }
+
+        function getMidiDevices(){
+            getMidiInputs();
+            getMidiOutputs();
+        }
+        function getMidiInputs(){
+            midiInDeviceList = Midi.listMidiDevices(MIDI_INPUT);
+        }
+        function getMidiOutputs(){
+            midiOutDeviceList = Midi.listMidiDevices(MIDI_OUTPUT);
+            midiOutDeviceList.shift();
+        }
+        function getMidiDeviceIds(){
+            MidiList.forEach(function(midiItem){
+                for (var i = 0; i < midiInDeviceList.length; i++){
+                    if (midiInDeviceList[i] === midiItem.midiInDevice){
+                        midiItem.midiInDeviceId = i;
+                    }
+                }
+                for (var i = 0; i < midiOutDeviceList.length; i++){
+                    if (midiOutDeviceList[i] === midiItem.midiOutDevice){
+                        midiItem.midiOutDeviceId = i + 1;
+                    }
+                }
+            })
+        }
+        function listMidiInputs(){
+        	print("Input Devices:");
+        	for (var i = 0; i < midiInDeviceList.length; i++) {
+            	print("(" + i + ") " + midiInDeviceList[i]);
+            }
+        }
+        function listMidiOutputs(){
+            print("Output Devices:");
+        	for (var i = 0; i < midiOutDeviceList.length; i++) {
+            	print("(" + (i+1) + ") " + midiOutDeviceList[i]); // Get rid of MS wavetable synth
+        	}
+        }
+
+        function buildMidiList(){
+
+        }
+        // Adjust for all devices
+        // #Revist
+        function unblockMidiDevice(){
+            MidiList.forEach(function(midiItem){
+                if (!midiItem.midiInBlock) {
+                    Midi.unblockMidiDevice(midiItem.midiOutDevice, MIDI_OUTPUT);
+                }
+                if (!midiItem.midiOutBlock) {
+                    Midi.unblockMidiDevice(midiItem.midiInDevice, MIDI_INPUT);
+                }
+            });
+        }
+
+        function midiHardwareResetReceieved(){
+        	getMidiInputs();
+        	getMidiOutputs();
+            buildMidiList();
+            getMidiDeviceIds();
+        	// blockAllDevices();
+            listMidiInputs();
+            listMidiOutputs();
+        	unblockMidiDevice();
         }
 
         function onMessageReceived(channel, message, sender) {
@@ -605,16 +705,27 @@ if (typeof Object.assign != 'function') {
         }
 
         function setUp(){
+            midiConfig();
             Messages.messageReceived.connect(onMessageReceived);
             Messages.subscribe(HIFI_MIDI_MIDI_CHANNEL);
-        }
+
+            Midi.midiReset.connect(midiHardwareResetReceieved);
+            Midi.midiMessage.connect(midiEventReceived); }
 
         function tearDown() {
             Messages.unsubscribe(HIFI_MIDI_CONTROLS_CHANNEL);
             Messages.messageReceived.disconnect(onMessageReceived);
+
+            Midi.midiReset.disconnect(midiHardwareResetReceieved);
+            Midi.midiMessage.disconnect(midiEventReceived);
+
         }
 
         return {
+            getMidiDevices: getMidiDevices,
+            midiHardwareResetReceieved: midiHardwareResetReceieved,
+            midiConfig: midiConfig,
+            reset: reset,
             setUp: setUp,
             tearDown: tearDown
         };
@@ -688,14 +799,13 @@ if (typeof Object.assign != 'function') {
                     ((inVal - inMin) /
                     (inMax - inMin)) *
                     (outMax - outMin) + outMin);
-                }
-        }
+            }
+        };
 
         registry = {
             records: {
-                add
             }
-        }
+        };
 
         objectMakers = {
             setup: function(optsObj, context) {
@@ -706,7 +816,7 @@ if (typeof Object.assign != 'function') {
             nodeInit: function(nodeName) {
                 nodeName = nodeName.toUpperCase();
 
-                var nodeInitObj = {}
+                var nodeInitObj = {};
                 nodeInitObj["HIFI_MIDI_" + nodeName + "_CHANNEL"] = "Hifi-Midi-" + nodeName + "-Channel",
                 nodeInitObj[nodeName + "_COMMAND_ERROR"] = "error",
                 nodeInitObj[nodeName + "_COMMAND_ADD"] = "add",
@@ -717,11 +827,11 @@ if (typeof Object.assign != 'function') {
                 nodeInitObj[nodeName + "_COMMAND_REMOVE"] = "remove",
                 nodeInitObj[nodeName + "List"] = [];
 
-                return nodeInitObj
+                return nodeInitObj;
             }
-        }
+        };
 
-        function setUp () {
+        function setUp() {
 
         }
 
@@ -730,7 +840,7 @@ if (typeof Object.assign != 'function') {
         }
 
         return {
-            objectMakers: objectMakers
+            objectMakers: objectMakers,
             registry: registry,
             transform: transform,
             setUp: setUp,
@@ -803,13 +913,13 @@ if (typeof Object.assign != 'function') {
         tablet.tabletShownChanged.connect(onTabletShownChanged);
 
         Controls.setUp();
-        Devices.setUp();
-        Entities.setUp();
-        Events.setUp();
-        Functions.setUp();
-        Midi.setUp();
-        PowerUps.setUp();
-        Properties.setUp();
+        // Devices.setUp();
+        EntitiesManager.setUp();
+        // Events.setUp();
+        // Functions.setUp();
+        MidiManager.setUp();
+        // PowerUps.setUp();
+        // Properties.setUp();
         Utils.setUp();
 
         isConnected = Window.location.isConnected;
@@ -824,13 +934,13 @@ if (typeof Object.assign != 'function') {
         Script.update.disconnect(onUpdate);
 
         Controls.tearDown();
-        Devices.tearDown();
-        Entities.tearDown();
-        Events.tearDown();
-        Functions.tearDown();
-        Midi.tearDown();
-        PowerUps.tearDown();
-        Properties.tearDown();
+        // Devices.tearDown();
+        EntitiesManager.tearDown();
+        // Events.tearDown();
+        // Functions.tearDown();
+        MidiManager.tearDown();
+        // PowerUps.tearDown();
+        // Properties.tearDown();
         Utils.tearDown();
 
         tablet.tabletShownChanged.disconnect(onTabletShownChanged);
@@ -851,7 +961,7 @@ if (typeof Object.assign != 'function') {
     setUp();
     Script.scriptEnding.connect(tearDown);
 
-})
+});
 
 /*
 SCRIPT_STARTUP_DELAY = 3000;  // 3s
