@@ -11,7 +11,24 @@
 //
 var isUsingToolbar = false,
     EVENT_BRIDGE_TYPE = "midi",
-    BODY_LOADED_ACTION = "bodyLoaded"
+    BODY_LOADED_ACTION = "bodyLoaded",
+    elControls,
+    elControlsTable,
+    elControlsList,
+    elInstructions,
+    elHideInfoButton,
+    elShowInfoButton,
+    elSpinner;
+
+    function showInstructions() {
+        isDisplayingInstructions = true;
+        updateInstructions();
+    }
+
+    function hideInstructions() {
+        isDisplayingInstructions = false;
+        updateInstructions();
+    }
 
 function onScriptEventReceived(data) {
     var message = JSON.parse(data);
@@ -31,9 +48,35 @@ function signalBodyLoaded(){
     EventBridge.emitWebEvent(stringifyEvent);
 }
 
+
 function onBodyLoaded(){
     EventBridge.scriptEventReceived.connect(onScriptEventReceived);
 
+    elControls = document.getElementById("controls");
+
+    elControlsTable = document.getElementById("controls-table");
+    elControlsList = document.getElementById("controls-list");
+    elInstructions = document.getElementById("instructions");
+    // elPlayersUnused = document.getElementById("players-unused");
+
+    elHideInfoButton = document.getElementById("hide-info-button");
+    elHideInfoButton.onclick = hideInstructions;
+    elShowInfoButton = document.getElementById("show-info-button");
+    elShowInfoButton.onclick = showInstructions;
+
+    // elLoadButton = document.getElementById("load-button");
+    // elLoadButton.onclick = onLoadButtonClicked;
+
+    elSpinner = document.getElementById("spinner");
+    // elCountdownNumber = document.getElementById("countdown-number");
+
+    // elRecordButton = document.getElementById("record-button");
+    // elRecordButton.onclick = onRecordButtonClicked;
+    //
+    // elFinishOnOpen = document.getElementById("finish-on-open");
+    // elFinishOnOpen.onclick = onFinishOnOpenClicked;
+
+    // elFinishOnOpenLabel = document.getElementById("finish-on-open-label");
     // get dom and add clicks to buttons
     //elHideInfoButton = document.getElementById("hide-info-button");
     //elHideInfoButton.onclick = hideInstructions;

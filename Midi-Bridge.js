@@ -37,7 +37,6 @@ if (typeof Object.assign !== 'function') {
 }
 
 (function () {
-
     // INIT
     var APP_NAME = "MIDI-BRIDGE",
         APP_ICON_INACTIVE = "icons/tablet-icons/avatar-record-i.svg",
@@ -48,16 +47,16 @@ if (typeof Object.assign !== 'function') {
         button,
         isConnected,
 
-        Controls;
+        Controls,
         // Devices,
         Dialog,
         EntitiesManager,
         // Events,
         // Functions,
         MidiManager,
-    // PowerUps,
-    // Properties,
-        Utils,
+        // PowerUps,
+        // Properties,
+        Utils;
 
     function log(describer, obj) {
         obj = obj || '';
@@ -65,7 +64,7 @@ if (typeof Object.assign !== 'function') {
         print(APP_NAME + ": \n" + describer);
         print(JSON.stringify(obj));
         print('======&');
-    };
+    }
 
     function error(message, info) {
         print('&======');
@@ -704,13 +703,18 @@ if (typeof Object.assign !== 'function') {
             Dialog.updateMidiDetails(MidiList);
         }
 
+        function midiEventReceived() {
+            print("test");
+        }
+
         function setUp(){
             midiConfig();
             Messages.messageReceived.connect(onMessageReceived);
             Messages.subscribe(HIFI_MIDI_MIDI_CHANNEL);
 
             Midi.midiReset.connect(midiHardwareResetReceieved);
-            Midi.midiMessage.connect(midiEventReceived); }
+            Midi.midiMessage.connect(midiEventReceived);
+        }
 
         function tearDown() {
             Messages.unsubscribe(HIFI_MIDI_CONTROLS_CHANNEL);
@@ -892,10 +896,12 @@ if (typeof Object.assign !== 'function') {
     }
 
     function setUp() {
+        print("startingSetup");
         tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
         if (!tablet) {
             return;
         }
+        print("tablet", tablet)
 
         // Tablet/toolbar button.
         button = tablet.addButton({
@@ -923,7 +929,7 @@ if (typeof Object.assign !== 'function') {
         Utils.setUp();
 
         isConnected = Window.location.isConnected;
-        Script.upddate.connect(onUpdate);
+        Script.update.connect(onUpdate);
     }
 
     function tearDown() {
@@ -958,11 +964,12 @@ if (typeof Object.assign !== 'function') {
         tablet = null;
     }
 
+    print("before setup");
+
     setUp();
     Script.scriptEnding.connect(tearDown);
 
-});
-
+}());
 /*
 SCRIPT_STARTUP_DELAY = 3000;  // 3s
 
