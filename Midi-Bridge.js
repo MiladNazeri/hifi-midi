@@ -285,11 +285,17 @@ if (typeof Object.assign !== 'function') {
             UPDATE_CONTROLLERS_ACTION = "updateControllers",
             UPDATE_DEVICES_ACTION = "updateDevices",
             UPDATE_MIDI_ACTION = "updateMidi",
-            UPDATE_ENTITIES_ACTION = "updateEntities";
+            UPDATE_ENTITIES_ACTION = "updateEntities",
+            TEST_SEND_ACTION = "testSendAction";
 
         function isUsingToolbar() {
             return ((HMD.active && Settings.getValue("hmdTabletBecomesToolbar"))
                 || (!HMD.active && Settings.getValue("desktopTabletBecomesToolbar")));
+        }
+
+        function finishOnOpen() {
+            isFinishedOnOpen = !isFinishedOnOpen;
+            return isFinishedOnOpen;
         }
 
         function updateControllerDetails(controls){
@@ -367,18 +373,17 @@ if (typeof Object.assign !== 'function') {
             if (message.type === EVENT_BRIDGE_TYPE) {
                 switch (message.action) {
                     case BODY_LOADED_ACTION:
-                        var usingToolbarEvent = {
+                        tablet.emitScriptEvent(JSON.stringify({
                             type: EVENT_BRIDGE_TYPE,
                             action: USING_TOOLBAR_ACTION,
                             value: isUsingToolbar()
-                        };
-                        var usingToolbarMessage = JSON.stringify(usingToolbarEvent);
-                        tablet.emitScriptEvent(usingToolbarMessage);
-                        var FinishOnOpenAction = {
+                        }));
+                        tablet.emitScriptEvent(JSON.stringify({
                             type: EVENT_BRIDGE_TYPE,
-                            action: USING_TOOLBAR_ACTION,
-                            value: isUsingToolbar()
-                        };
+                            action: TEST_SEND_ACTION,
+                            value: "test"
+                        }));
+
                         break;
                     case UPDATE_CONTROLLERS_ACTION:
                         break;
@@ -402,6 +407,7 @@ if (typeof Object.assign !== 'function') {
         }
 
         return {
+            finishOnOpen: finishOnOpen,
             updateMidiDetails: updateMidiDetails,
             updateEntitiesDetails: updateEntitiesDetails,
             updateControllerDetails: updateControllerDetails,
@@ -640,12 +646,14 @@ if (typeof Object.assign !== 'function') {
                 }
             })
         }
+
         function listMidiInputs(){
         	print("Input Devices:");
         	for (var i = 0; i < midiInDeviceList.length; i++) {
             	print("(" + i + ") " + midiInDeviceList[i]);
             }
         }
+
         function listMidiOutputs(){
             print("Output Devices:");
         	for (var i = 0; i < midiOutDeviceList.length; i++) {
@@ -717,7 +725,7 @@ if (typeof Object.assign !== 'function') {
         }
 
         function tearDown() {
-            Messages.unsubscribe(HIFI_MIDI_CONTROLS_CHANNEL);
+            Messages.unsubscribe(HIFI_MIDI_MIDI_CHANNEL);
             Messages.messageReceived.disconnect(onMessageReceived);
 
             Midi.midiReset.disconnect(midiHardwareResetReceieved);
