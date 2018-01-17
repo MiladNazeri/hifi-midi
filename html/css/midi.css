@@ -14,7 +14,9 @@ body {
 }
 
 .title {
-    padding-left: 21px;
+    display: block;
+    padding: 15px;
+    margin-bottom: 10px;
 }
 
 .title label {

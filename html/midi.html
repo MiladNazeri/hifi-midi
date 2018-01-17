@@ -35,7 +35,7 @@
     </head>
     <body>
         <div class="container">
-            <div class="row" id="control-group" class="collapse">
+            <div class="row" id="control-group">
                 <div class="row">
                     <div class="col" id="input-min">
                         <span class="title">Input Min</span>
@@ -46,41 +46,134 @@
                         <div id="input-max-dial"></div>
                     </div>
                     <div class="col" id="output-min">
-                        Output Min
+                        <span class="title">Output Min</span>
                         <div id="output-min-dial"></div>
-
                     </div>
                     <div class="col" id="output-max">
-                        Output Max
+                        <span class="title">Output Max</span>
                         <div id="output-max-dial"></div>
                     </div>
                     <div class="col" id="current">
-                        Current
+                        <span class="title">Current</span>
                         <div id="current-dial"></div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col" id="input-min">
-                        Device Group
+                    <div class="col" id="device-group">
+                        <span class="title">Device Group</span>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#device-group-modal">
+                          Open Device Group
+                        </button>
                     </div>
-                    <div class="col" id="input-max">
-                        Channel Group
+                    <div class="col" id="channel-group">
+                        <span class="title">Channel Group</span>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#channel-group-modal">
+                          Open Channel Group
+                        </button>
                     </div>
-                    <div class="col" id="output-min">
-                        Control Number Group
+                    <div class="col" id="control-number-group">
+                        <span class="title">Control Number Group</span>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#control-number-group-modal">
+                          Open Control Number Group
+                        </button>
                     </div>
-                    <div class="col" id="output-max">
-                        Entity Group
+                    <div class="col" id="entity-group">
+                        <span class="title">Entity Group</span>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#entity-group-modal">
+                          Open Entity Group
+                        </button>
                     </div>
                 </div>
+                <!-- Device Group -->
+                <div class="modal" id="device-group-modal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Device Group</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Midi In
+                        Midi Out
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Channel Group -->
+                <div class="modal" id="channel-group-modal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Channel Group</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Channels
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Control Number Group -->
+                <div class="modal" id="control-number-group-modal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Control Number Group</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Control Numbers
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Entity Group -->
+                <div class="modal" id="entity-group-modal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Entity Group</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        Entities
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </div>
-            <div id="accordian" role="tablist">
-
+            <div class="row">
+                <div class="col">
+                    <button type="button" class="btn btn-primary">Add new control</button>
+                </div>
             </div>
-            <button type="button" class="btn btn-primary">Add new control</button>
         </div>
         <script type="text/javascript" src="js/midi.js"></script>
-
         <script>
             onBodyLoaded();
         </script>
