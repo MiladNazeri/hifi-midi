@@ -8,174 +8,72 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
 
-<!-- <th>Input min</th>
-<th>Input max</th>
-<th>Output min</th>
-<th>Output max</th>
-<th>Device Group</th>
-<th>Channel Group</th>
-<th>control Number Group</th>
-<th>Entitiy Group</th> -->
-<!-- <th>Events Group</th>
-<th>Properties Group</th>
-<th>PowerUps Group</th>
-<th>Functions Group</th> -->
 <html>
     <head>
         <title>Midi</title>
         <link rel="stylesheet" type="text/css" href="css/edit-style.css">
         <link rel="stylesheet" type="text/css" href="css/midi.css">
-        <link rel="stylesheet" type="text/css" href="libs/bootstrap-4.0.0-beta.3-dist/css/bootstrap.min.css">
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script type="text/javascript" src="libs/bootstrap-4.0.0-beta.3-dist/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="libs/nexus/NexusUi.js"></script>
-
-
+        <script type="text/javascript" src="js/midi.js"></script>
     </head>
     <body>
-        <div class="container">
-            <div class="row" id="control-group">
-                <div class="row">
-                    <div class="col" id="input-min">
-                        <span class="title">Input Min</span>
-                        <div id="input-min-dial"></div>
-                    </div>
-                    <div class="col" id="input-max">
-                        <span class="title">Input Max</span>
-                        <div id="input-max-dial"></div>
-                    </div>
-                    <div class="col" id="output-min">
-                        <span class="title">Output Min</span>
-                        <div id="output-min-dial"></div>
-                    </div>
-                    <div class="col" id="output-max">
-                        <span class="title">Output Max</span>
-                        <div id="output-max-dial"></div>
-                    </div>
-                    <div class="col" id="current">
-                        <span class="title">Current</span>
-                        <div id="current-dial"></div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col" id="device-group">
-                        <span class="title">Device Group</span>
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#device-group-modal">
-                          Open Device Group
-                        </button>
-                    </div>
-                    <div class="col" id="channel-group">
-                        <span class="title">Channel Group</span>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#channel-group-modal">
-                          Open Channel Group
-                        </button>
-                    </div>
-                    <div class="col" id="control-number-group">
-                        <span class="title">Control Number Group</span>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#control-number-group-modal">
-                          Open Control Number Group
-                        </button>
-                    </div>
-                    <div class="col" id="entity-group">
-                        <span class="title">Entity Group</span>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#entity-group-modal">
-                          Open Entity Group
-                        </button>
-                    </div>
-                </div>
-                <!-- Device Group -->
-                <div class="modal" id="device-group-modal" tabindex="-1" role="dialog">
-                  <div class="modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Device Group</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        Midi In
-                        Midi Out
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Channel Group -->
-                <div class="modal" id="channel-group-modal" tabindex="-1" role="dialog">
-                  <div class="modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Channel Group</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        Channels
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Control Number Group -->
-                <div class="modal" id="control-number-group-modal" tabindex="-1" role="dialog">
-                  <div class="modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Control Number Group</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        Control Numbers
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Entity Group -->
-                <div class="modal" id="entity-group-modal" tabindex="-1" role="dialog">
-                  <div class="modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">Entity Group</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        Entities
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                      </div>
-                    </div>
-                  </div>
+            <div class="title">
+                <label>Midi</label>
+            </div>
+            <hr />
+            <div id="controls">
+                <div id="table-container">
+                    <table id="controls-table">
+                        <colgroup>
+                            <col />
+                            <col id="unload-column" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Channel</th>
+                                <th>control Number</th>
+                                <th>Input min</th>
+                                <th>Input max</th>
+                                <th>Output min</th>
+                                <th>Output max</th>
+                                <th>Entitiy Group</th>
+                                <th>Properties Group</th>
+                                <th>PowerUps Group</th>
+                                <th>Functions Group</th>
+                            </tr>
+                        </thead>
+                        <thead>
+                        <tbody id="controls-list"></tbody>
+                        <tbody id="instructions" class="hidden"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td id="footer-text" colspan="2">
+                                    extra info <span id="players-unused"></span>
+                                    <span id="show-info-button"></span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    <button type="button" class="btn btn-primary">Add new control</button>
+            <div id="spinner" class="hidden">
+                <img src="img/loader-red-countdown-ring.gif" />
+                <span id="countdown-number">3</span>
+            </div>
+            <div id="midi-controls">
+                <div id="load-container">
+                    <input id="load-button" type="button" value="Load" disabled />
+                </div>
+                <div id="record-container">
+                    <input id="record-button" class="red" type="button" value="Record" />
+                </div>
+                <div id="checkbox-container" class="property checkbox">
+                    <input type="checkbox" id="finish-on-open">
+                    <label for="finish-on-open" id="finish-on-open-label">Stop recording automatically when ...</label>
                 </div>
             </div>
-        </div>
-        <script type="text/javascript" src="js/midi.js"></script>
-        <script>
-            onBodyLoaded();
-        </script>
+            <script>
+                onBodyLoaded();
+            </script>
     </body>
 </html>
