@@ -8,6 +8,18 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 -->
 
+<!-- <th>Input min</th>
+<th>Input max</th>
+<th>Output min</th>
+<th>Output max</th>
+<th>Device Group</th>
+<th>Channel Group</th>
+<th>control Number Group</th>
+<th>Entitiy Group</th> -->
+<!-- <th>Events Group</th>
+<th>Properties Group</th>
+<th>PowerUps Group</th>
+<th>Functions Group</th> -->
 <html>
     <head>
         <title>Midi</title>
@@ -16,15 +28,59 @@
         <link rel="stylesheet" type="text/css" href="libs/bootstrap-4.0.0-beta.3-dist/css/bootstrap.min.css">
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script type="text/javascript" src="js/midi.js"></script>
         <script type="text/javascript" src="libs/bootstrap-4.0.0-beta.3-dist/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="js/NexusUi.js"></script>
+        <script type="text/javascript" src="libs/nexus/NexusUi.js"></script>
+
 
     </head>
     <body>
         <div class="container">
-            test
+            <div class="row" id="control-group" class="collapse">
+                <div class="row">
+                    <div class="col" id="input-min">
+                        <span class="title">Input Min</span>
+                        <div id="input-min-dial"></div>
+                    </div>
+                    <div class="col" id="input-max">
+                        <span class="title">Input Max</span>
+                        <div id="input-max-dial"></div>
+                    </div>
+                    <div class="col" id="output-min">
+                        Output Min
+                        <div id="output-min-dial"></div>
+
+                    </div>
+                    <div class="col" id="output-max">
+                        Output Max
+                        <div id="output-max-dial"></div>
+                    </div>
+                    <div class="col" id="current">
+                        Current
+                        <div id="current-dial"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col" id="input-min">
+                        Device Group
+                    </div>
+                    <div class="col" id="input-max">
+                        Channel Group
+                    </div>
+                    <div class="col" id="output-min">
+                        Control Number Group
+                    </div>
+                    <div class="col" id="output-max">
+                        Entity Group
+                    </div>
+                </div>
+            </div>
+            <div id="accordian" role="tablist">
+
+            </div>
+            <button type="button" class="btn btn-primary">Add new control</button>
         </div>
+        <script type="text/javascript" src="js/midi.js"></script>
+
         <script>
             onBodyLoaded();
         </script>
