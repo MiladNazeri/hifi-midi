@@ -46,7 +46,13 @@ function matchNoteToKey(note){
     })
     return keyMatched;
 }
-
+function log(describer, obj) {
+    obj = obj || '';
+    print('&======');
+    print(describer);
+    print(JSON.stringify(obj));
+    print('======&');
+}
 
 var circleValue = 0;
 var directionValue = 0;
@@ -85,22 +91,24 @@ function trackValueEdit(amount, direction){
     }
 }
 
+// var shaderPath = Script.resolvePath("./shader.fs");
+// log("shaderPath", shaderPath);
 // Controls
-var speedControl = 77;
-var pitchControl = 49;
-var yawControl = 29;
-var rollControl = 13;
-var cutOffControl = 14;
-var exponentControl = 30;
-var fallOffRadiusControl = 50;
-var redControl1 = 51;
-var greenControl1 = 31;
-var blueControl1 = 15;
-var intensityControl1 = 79;
-var redControl2 = 52;
-var greenControl2 = 32;
-var blueControl2 = 16;
-var intensityControl2 = 80;
+// var speedControl = 77;
+// var pitchControl = 49;
+// var yawControl = 29;
+// var rollControl = 13;
+// var cutOffControl = 14;
+// var exponentControl = 30;
+// var fallOffRadiusControl = 50;
+// var redControl1 = 51;
+// var greenControl1 = 31;
+// var blueControl1 = 15;
+// var intensityControl1 = 79;
+// var redControl2 = 52;
+// var greenControl2 = 32;
+// var blueControl2 = 16;
+// var intensityControl2 = 80;
 
 // Misc
 var wantDynamic = false;
@@ -130,15 +138,84 @@ var lightProps = {};
 // Entity Vars
 var light, light0, box1, sphere1;
 
-function lightSource(){
-    print("Creating Spotlight");
-    var pos = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 1, z: -2}));
+var defaultObj = {
+    pos: {x: 0, y: 1, z: -2},
+}
 
-    box1 = Entities.addEntity({
+var posMap = {
+    posFront: {x: 0, y: 1, z: -2},
+    posBack: {x: 0, y: 1, z: 2},
+    posLeft: {x: -2, y: 1, z: 0},
+    posRight: {x: 2, y: 1, z: 0},
+}
+var posMap2 = {
+    posFront: {x: 0, y: 1, z: -3},
+    posBack: {x: 0, y: 1, z: 3},
+    posLeft: {x: -3, y: 1, z: 0},
+    posRight: {x: 3, y: 1, z: 0},
+}
+var posMap3 = {
+    posFront: {x: 0, y: 2, z: -4},
+    posBack: {x: 0, y: 2, z: 4},
+    posLeft: {x: -4, y: 2, z: 0},
+    posRight: {x: 4, y: 2, z: 0},
+    posup: {x: 0, y: 3, z: 0},
+
+}
+var posMapArray = [posMap,posMap2,posMap3]
+var posMapKeys = Object.keys(posMap3);
+var rotationMap = {
+    x1: Quat.fromPitchYawRollDegrees(90,0,0),
+    x2: Quat.fromPitchYawRollDegrees(-90,0,0),
+    x3: Quat.fromPitchYawRollDegrees(180,0,0),
+    y1: Quat.fromPitchYawRollDegrees(0,90,0),
+    y2: Quat.fromPitchYawRollDegrees(0,-90,0),
+    z1: Quat.fromPitchYawRollDegrees(0,0,90),
+    z2: Quat.fromPitchYawRollDegrees(0,0,90)
+}
+var rotationMapKeys = Object.keys(rotationMap);
+var allLightSources = [];
+var userData = {
+    grabbableKey: {
+        grabbable: false
+    },
+    ProceduralEntity: {
+        version: 2,
+        shaderUrl:
+            "http://localhost:3001/shader.fs",
+        channels: null,
+        uniforms: {
+            specular_intensity: 0.8,
+            specular_hardness: 380,
+            diffuse_color: [
+                Math.sin(1 * (1 + 2) + 0),
+                Math.sin(
+                    2 * (2+ 3) + 2 * Math.PI / 3
+                ),
+                Math.sin(3 * (2 + 3) + 4 * Math.PI / 3)
+            ],
+            emit: -10,
+            iSpeed: Math.random() / 4,
+            hide: [0.0, 0.0, 0.0],
+            specular_color: [
+                Math.sin(4 * (2 + 3) + 0),
+                Math.sin(
+                    5 * (2 + 3) + 2 * Math.PI / 3
+                ),
+                Math.sin(6 * (2 + 3) + 4 * Math.PI / 3)
+            ]
+        }
+    },
+}
+function LightSourceMaker(pos){
+    print("in LIght source Maker")
+    pos = pos || defaultObj.pos;
+    this.position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, pos));
+    this.box = Entities.addEntity({
         name: "The Spot Light",
         description: "",
         type: "Box",
-        position: pos,
+        position: this.position,
         dimensions: {
             x: 0.35,
             y: 0.35,
@@ -152,15 +229,13 @@ function lightSource(){
             red: 100,
             blue: 0,
             green: 0
-        }
-    });
-
-    sphere1 = Entities.addEntity({
+        },
+    })
+    this.sphere = Entities.addEntity({
         name: "Spot Light Sphere",
         description: "",
         type: "Sphere",
-        position: pos,
-
+        position: this.position,
         dimensions: {
             x: 0.5,
             y: 0.5,
@@ -176,15 +251,14 @@ function lightSource(){
             green: 0
         },
         collisionless: true,
-        userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
-        parentID: box1
+        // userData: JSON.stringify(userData),
+        parentID: this.box
     });
-
     var lightProps = {
         name: "Spot Light Emitter 1",
         description: "",
         type: "Light",
-        position: pos,
+        position: this.position,
         dimensions: {
             x: 60,
             y: 60,
@@ -204,185 +278,463 @@ function lightSource(){
         cutoff: 10,
         collisionless: true,
         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
-        parentID: box1
+        parentID: this.box
     };
-
-    // Iluminator
-    lightProps.isSpotlight = 0;
-    light0 = Entities.addEntity(lightProps);
-
+    this.light0 = Entities.addEntity(lightProps);
+    this.lights = [];
     lightProps.isSpotlight = 1;
-    lightProps.rotation = Quat.fromPitchYawRollDegrees(90,0,0)
-    lights.push(Entities.addEntity(lightProps));
+    rotationMapKeys.forEach(function(rotation){
+        lightProps.rotation = rotationMap[rotation];
+        this.lights.push(Entities.addEntity(lightProps));
+    }, this);
+    this.speed = 1;
+    this.pitch = 0;
+    this.yaw = 0;
+    this.roll = 0;
+    this.fallOffRadius = 0;
+    this.exponent = 0;
+    this.cutoff = 0;
+    this.red = 0;
+    this.green = 0;
+    this.blue = 0;
+    this.centerRed = 0;
+    this.centerGreen = 0;
+    this.centerBlue = 0;
+    this.lightIntensity = 0;
+    this.centerIntensity = 0;
+    this.group = 0;
+    this.enable = true;
+    this.centerEnable = true;
+    this.toggleEnable = function(){
+        this.enable = !this.enable;
+        print("enable " + this.enable);
+    };
+    this.toggleCenterEnable = function(){
+        this.centerEnable = !this.centerEnable;
+        print("centerEnable " + this.centerEnable);
 
-    lightProps.isSpotlight = 1;
-    lightProps.rotation = Quat.fromPitchYawRollDegrees(-90,0,0);
-    lights.push(Entities.addEntity(lightProps));
-
-    lightProps.isSpotlight = 1;
-    lightProps.rotation = Quat.fromPitchYawRollDegrees(0,90,0);
-    lights.push(Entities.addEntity(lightProps));
-
-    lightProps.isSpotlight = 1;
-    lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-90,0);
-    lights.push(Entities.addEntity(lightProps));
-
-    lightProps.isSpotlight = 1;
-    lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,90);
-    lights.push(Entities.addEntity(lightProps));
-
-    lightProps.isSpotlight = 1;
-    lightProps.rotation = Quat.fromPitchYawRollDegrees(180,0,0);
-    lights.push(Entities.addEntity(lightProps));
-}
-
-function midiEventReceived(eventData) {
-    if (eventData.device != midiInDeviceId || eventData.channel != midiChannel ){
-        return;
+    };
+    this.changeSpeed = function(newSpeed){
+        this.speed = newSpeed
     }
+    this.changePitch = function(newPitch){
+        this.pitch = lerp (0,127,0,this.speed,newPitch)-this.speed/2;
+        Entities.editEntity(this.box,{
+            angularVelocity: {x:this.pitch, y:this.yaw, z: this.roll}
+        })
+    }
+    this.changeYaw = function(newYaw){
+        this.yaw = lerp (0,127,0,this.speed,newYaw)-this.speed/2;
+        Entities.editEntity(this.box,{
+            angularVelocity: {x:this.pitch, y:this.yaw, z: this.roll}
+        })
+    }
+    this.changeRoll = function(newRoll){
+        this.roll = lerp (0,127,0,this.speed,newRoll)-this.speed/2;
+        Entities.editEntity(this.box,{
+            angularVelocity: {x:this.pitch, y:this.yaw, z: this.roll}
+        })
+    }
+    this.changeFallOff = function(newRadius){
+        this.fallOffRadius = lerp (0,127,0.001,1,newRadius);
+        props = {falloffRadius: this.fallOffRadius};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    }
+    this.changeExponent = function(newExponent){
+        this.exponent = lerp (0,127,1,1000,newExponent);
+        props = {exponent: this.exponent};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    }
+    this.changeCutoff = function(newCutoff){
+        this.cutoff = lerp (0,127,0,1000,newCutoff);
+        props = {cutoff: this.cutoff};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    }
+    this.changeRed = function(newRed){
+        this.red = lerp (0,127,0,255,newRed);
+        props = {color: {red: this.red, green: this.green, blue: this.blue}};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    };
+    this.changeGreen = function(newGreen){
+        this.green = lerp (0,127,0,255,newGreen);
+        props = {color: {red: this.red, green: this.green, blue: this.blue}};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    };
+    this.changeBlue = function(newBlue){
+        this.blue = lerp (0,127,0,255,newBlue);
+        props = {color: {red: this.red, green: this.green, blue: this.blue}};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    };
+    this.changeCenterRed = function(newRed){
+        this.centerRed = lerp (0,127,0,255,newRed);
+        props = {color: {red: this.centerRed, green: this.centerGreen, blue: this.centerBlue}};
+        Entities.editEntity(this.light0, props);
+        Entities.editEntity(this.sphere, props);
+    };
+    this.changeCenterGreen = function(newGreen){
+        this.centerGreen = lerp (0,127,0,255,newGreen);
+        props = {color: {red: this.centerRed, green: this.centerGreen, blue: this.centerBlue}};
+        Entities.editEntity(this.light0, props);
+        Entities.editEntity(this.sphere, props);
+    };
+    this.changeCenterBlue = function(newBlue){
+        this.centerBlue = lerp (0,127,0,255,newBlue);
+        props = {color: {red: this.centerRed, green: this.centerGreen, blue: this.centerBlue}};
+        Entities.editEntity(this.light0, props);
+        Entities.editEntity(this.sphere, props);
+    };
+    this.changeIntensity = function(newIntensity){
+        this.lightIntensity = lerp (0,127,0,500,newIntensity);
+        props = {intensity: this.lightIntensity};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+        Entities.editEntity(this.box, props);
+    };
+    this.changeCenterIntensity = function(newCenterIntensity){
+        this.centerIntensity = lerp (0,127,0,1000,newCenterIntensity);
+        props = {intensity: this.lightIntensity};
+        Entities.editEntity(this.light0, props);
+    };
+    this.setup = function(){
 
+    }
+    this.tearDown = function(){
+        print("running TearDown")
+        print(JSON.stringify(this));
+        Entities.deleteEntity(this.box);
+    }
+}
+function changeSpeed(newSpeed){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeSpeed(newSpeed);
+    })
+}
+function changePitch(newPitch){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changePitch(newPitch);
+    })
+}
+function changeYaw(newYaw){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeYaw(newYaw);
+    })
+}
+function changeRoll(newRoll){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeRoll(newRoll);
+    })
+}
+function changeFallOff(newRadius){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeFallOff(newRadius);
+    })
+}
+function changeExponent(newExponent){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeExponent(newExponent);
+    })
+}
+function changeCutoff(newCutoff){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeCutoff(newCutoff);
+    })
+}
+function changeRed(newRed){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeRed(newRed);
+    })
+}
+function changeGreen(newGreen){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeGreen(newGreen);
+    })
+}
+function changeBlue(newBlue){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeBlue(newBlue);
+    })
+}
+function changeIntensity(newIntensity){
+    allLightSources.forEach(function(source){
+        if (!source.enable) return;
+        source.changeIntensity(newIntensity);
+    })
+}
+function changeCenterIntensity(newIntensity){
+    allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        source.changeCenterIntensity(newIntensity);
+    })
+}
+function changeCenterRed(newRed){
+    allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        source.changeCenterRed(newRed);
+    })
+}
+function changeCenterGreen(newGreen){
+    allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        source.changeCenterGreen(newGreen);
+    })
+}
+function changeCenterBlue(newBlue){
+    allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        source.changeCenterBlue(newBlue);
+    })
+}
+function toggleEnable(i){
+    allLightSources.forEach(function(source, index){
+        if (i === index) source.toggleEnable();
+    })
+};
+function toggleCenterEnable(i){
+    allLightSources.forEach(function(source, index){
+        if (i === index) source.toggleCenterEnable();
+    })
+};
+// // function lightSource(){
+//     print("Creating Spotlight");
+//     var pos = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 1, z: -2}));
+//
+//     box1 = Entities.addEntity({
+//         name: "The Spot Light",
+//         description: "",
+//         type: "Box",
+//         position: pos,
+//         dimensions: {
+//             x: 0.35,
+//             y: 0.35,
+//             z: 0.35
+//         },
+//         dynamic: wantDynamic,
+//         gravity: {x:0, y:-2, z:0},
+//         angularDamping: 0,
+//         friction: 0,
+//         color:{
+//             red: 100,
+//             blue: 0,
+//             green: 0
+//         }
+//     });
+//
+//     sphere1 = Entities.addEntity({
+//         name: "Spot Light Sphere",
+//         description: "",
+//         type: "Sphere",
+//         position: pos,
+//
+//         dimensions: {
+//             x: 0.5,
+//             y: 0.5,
+//             z: 0.5
+//         },
+//         dynamic: wantDynamic,
+//         gravity: {x:0, y:-2, z:0},
+//         angularDamping: 0,
+//         friction: 0,
+//         color:{
+//             red: 100,
+//             blue: 0,
+//             green: 0
+//         },
+//         collisionless: true,
+//         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
+//         parentID: box1
+//     });
+//
+//     var lightProps = {
+//         name: "Spot Light Emitter 1",
+//         description: "",
+//         type: "Light",
+//         position: pos,
+//         dimensions: {
+//             x: 60,
+//             y: 60,
+//             z: 60
+//         },
+//         dynamic: wantDynamic,
+//         gravity: {x:0, y:-2, z:0},
+//         angularDamping: 0,
+//         color:{red: 255,
+//             blue: 255,
+//             green: 255
+//         },
+//         intensity: 1000,
+//         falloffRadius: 0,
+//         isSpotlight: 0,
+//         exponent: 1,
+//         cutoff: 10,
+//         collisionless: true,
+//         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
+//         parentID: box1
+//     };
+//
+//     // Iluminator
+//     lightProps.isSpotlight = 0;
+//     light0 = Entities.addEntity(lightProps);
+//
+//     lightProps.isSpotlight = 1;
+//     lightProps.rotation = Quat.fromPitchYawRollDegrees(90,0,0)
+//     lights.push(Entities.addEntity(lightProps));
+//
+//     lightProps.isSpotlight = 1;
+//     lightProps.rotation = Quat.fromPitchYawRollDegrees(-90,0,0);
+//     lights.push(Entities.addEntity(lightProps));
+//
+//     lightProps.isSpotlight = 1;
+//     lightProps.rotation = Quat.fromPitchYawRollDegrees(0,90,0);
+//     lights.push(Entities.addEntity(lightProps));
+//
+//     lightProps.isSpotlight = 1;
+//     lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-90,0);
+//     lights.push(Entities.addEntity(lightProps));
+//
+//     lightProps.isSpotlight = 1;
+//     lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,90);
+//     lights.push(Entities.addEntity(lightProps));
+//
+//     lightProps.isSpotlight = 1;
+//     lightProps.rotation = Quat.fromPitchYawRollDegrees(180,0,0);
+//     lights.push(Entities.addEntity(lightProps));
+// }
+function midiEventReceived(eventData) {
+    // if (eventData.device != midiInDeviceId || eventData.channel != midiChannel ){
+    //     return;
+    // }
+    log("eventData", eventData)
 // Light Speed
     if (eventData.note == novationMap.knob_1){
-        speed1 = eventData.velocity/2;
+        var speed = eventData.velocity/2;
+        changeSpeed(speed);
     }
 
 // Light Pitch
     if (eventData.note == novationMap.knob_2){
-        pitch1 = lerp (0,127,0,speed1,eventData.velocity)-speed1/2;
-        Entities.editEntity(box1,{
-            angularVelocity: {x:pitch1, y:yaw1 , z: roll1}
-        })
+        changePitch(eventData.velocity);
     }
 
 // Light Yaw
     if (eventData.note == novationMap.knob_3){
-        yaw1 = lerp (0,127,0,speed1,eventData.velocity)-speed1/2;
-        Entities.editEntity(box1,{
-            angularVelocity: {x:pitch1, y:yaw1 , z: roll1}
-        })
+        changeYaw(eventData.velocity);
     }
 
 // Light Roll
     if (eventData.note == novationMap.knob_4){
-        roll1 = lerp (0,127,0,speed1,eventData.velocity) -speed1/2;
-        Entities.editEntity(box1,{
-            angularVelocity: {x:pitch1, y:yaw1 , z: roll1}
-        })
+        changeRoll(eventData.velocity);
     }
 
 // Light Fall Off Radius
     if (eventData.note == novationMap.knob_5){
-        falloffRadius1 = lerp (0,127,0.001,1,eventData.velocity);
-        props = {falloffRadius: falloffRadius1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        changeFallOff(eventData.velocity);
     }
 
 // Light exponent
     if (eventData.note == novationMap.circle_up){
-        circleValueEdit(100, 'up');
-        exponent1 = lerp (0,127,0.001,20,circleValue);
-        props = {exponent: exponent1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        circleValueEdit(50, 'up');
+        changeExponent(circleValue);
     }
 
     if (eventData.note == novationMap.circle_down){
-        circleValueEdit(100, 'down');
-        exponent1 = lerp (0,127,0.001,20,circleValue);
-        props = {exponent: exponent1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        circleValueEdit(50, 'down');
+        changeExponent(circleValue);
     }
 
 // Light cutoff
     if (eventData.note == novationMap.up){
-        directionValueEdit(10, 'up');
-
-        cutoff1 = lerp (0,127,0,100,directionValue);
-        props = {cutoff: cutoff1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        directionValueEdit(50, 'up');
+        changeCutoff(directionValue);
     }
 
     if (eventData.note == novationMap.down){
         directionValueEdit(10, 'down');
-
-        cutoff1 = lerp (0,127,0,100,directionValue);
-        props = {cutoff: cutoff1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        changeCutoff(directionValue);
     }
 
 // Light Re d
     if (eventData.note == novationMap.knob_6){
-        red1 = lerp (0,127,0,255,eventData.velocity);
-        props = {color: {red: red1, green: green1, blue: blue1}};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        changeRed(eventData.velocity);
     }
 
 // Light green
     if (eventData.note == novationMap.knob_7){
-        green1 = lerp (0,127,0,255,eventData.velocity);
-        props = {color: {red: red1, green: green1, blue: blue1}};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        changeGreen(eventData.velocity);
     }
 
 // Lightblue
     if (eventData.note == novationMap.knob_8){
-        blue1 = lerp (0,127,0,255,eventData.velocity);
-        props = {color: {red: red1, green: green1, blue: blue1}};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
+        changeBlue(eventData.velocity);
     }
 
 // Light Intensicty
     if (eventData.note == novationMap.track_left){
         trackValueEdit(5, 'down');
-        intensity1 = lerp (0,127,0,500,trackValue);
-        props = {intensity: intensity1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
-        Entities.editEntity(box1, props);
+        changeIntensity(trackValue);
     }
     if (eventData.note == novationMap.track_right){
         trackValueEdit(5, 'up');
-        intensity1 = lerp (0,127,0,500,trackValue);
-        props = {intensity: intensity1};
-        lights.forEach(function(light) {Entities.editEntity(light, props)});
-        Entities.editEntity(box1, props);
+        changeIntensity(trackValue);
     }
 
 // Center Light
     if (eventData.note == novationMap.track_left){
-        trackValueEdit(5, 'down');
-        intensity2 = lerp (0,127,0,1000,eventData.velocity);
-        props = {intensity: intensity2};
-        Entities.editEntity(light0, props);
+        trackValueEdit(50, 'down');
+        changeCenterIntensity(trackValue);
     }
     if (eventData.note == novationMap.track_right){
-        trackValueEdit(5, 'up');
-        intensity2 = lerp (0,127,0,1000,eventData.velocity);
-        props = {intensity: intensity2};
-        Entities.editEntity(light0, props);
+        trackValueEdit(50, 'up');
+        changeCenterIntensity(trackValue);
     }
 
 // Center Light Red
     if (eventData.note == novationMap.knob_6){
-        red2 = lerp (0,127,0,255,eventData.velocity);
-        props = {color: {red: red2, green: green2, blue: blue2}};
-        Entities.editEntity(light0,props);
-        Entities.editEntity(sphere1, props);
+        changeCenterRed(eventData.velocity);
     }
 
 // Center Light green
     if (eventData.note == novationMap.knob_7){
-        green2 = lerp (0,127,0,255,eventData.velocity);
-        props = {color: {red: red2, green: green2, blue: blue2}};
-        Entities.editEntity(light0, props);
-        Entities.editEntity(sphere1, props);
+        changeCenterGreen(eventData.velocity);
     }
 
 
 // Center Light blue
     if (eventData.note == novationMap.knob_8){
-        blue2 = lerp (0,127,0,255,eventData.velocity);
-        props = {color: {red: red2, green: green2, blue: blue2}};
-        Entities.editEntity(light0, props);
-        Entities.editEntity(sphere1, props);
+        changeCenterBlue(eventData.velocity);
+    }
+
+    if (eventData.note == novationMap.pad_1){
+        toggleEnable(0);
+    }
+    if (eventData.note == novationMap.pad_2){
+        toggleEnable(1);
+    }
+    if (eventData.note == novationMap.pad_3){
+        toggleEnable(2);
+    }
+    if (eventData.note == novationMap.pad_4){
+        toggleEnable(3);
+    }
+    if (eventData.note == novationMap.pad_5){
+        toggleCenterEnable(0);
+    }
+    if (eventData.note == novationMap.pad_6){
+        toggleCenterEnable(1);
+    }
+    if (eventData.note == novationMap.pad_7){
+        toggleCenterEnable(2);
+    }
+    if (eventData.note == novationMap.pad_8){
+        toggleCenterEnable(3);
     }
 }
 
@@ -459,11 +811,22 @@ function midiConfig(){
 }
 
 function scriptEnding() {
-    Entities.deleteEntity(box1);
+    function changeCenterBlue(newBlue){
+        allLightSources.forEach(function(source){
+            source.tearDown();
+        })
+    }
 }
 
 midiConfig();
-lightSource();
+function makeLight(){
+    posMapKeys.forEach(function(pos){
+        var lightSource = new LightSourceMaker(posMap3[pos]);
+        allLightSources.push(lightSource);
+    })
+
+}
+makeLight();
 
 Midi.midiReset.connect(midiHardwareResetReceieved);
 Midi.midiMessage.connect(midiEventReceived);
