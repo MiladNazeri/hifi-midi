@@ -91,25 +91,6 @@ function trackValueEdit(amount, direction){
     }
 }
 
-// var shaderPath = Script.resolvePath("./shader.fs");
-// log("shaderPath", shaderPath);
-// Controls
-// var speedControl = 77;
-// var pitchControl = 49;
-// var yawControl = 29;
-// var rollControl = 13;
-// var cutOffControl = 14;
-// var exponentControl = 30;
-// var fallOffRadiusControl = 50;
-// var redControl1 = 51;
-// var greenControl1 = 31;
-// var blueControl1 = 15;
-// var intensityControl1 = 79;
-// var redControl2 = 52;
-// var greenControl2 = 32;
-// var blueControl2 = 16;
-// var intensityControl2 = 80;
-
 // Misc
 var wantDynamic = false;
 
@@ -126,18 +107,6 @@ const OUTPUT = true;
 const ENABLE = true;
 const DISABLE = false;
 
-// Motion vars
-var speed1, pitch1, yaw1, roll1;
-// General Light vars
-var red1, red2, green1, green2, blue1, blue2, intensity1, intensity2, falloffRadius1;
-// Spotlight vars
-var cutoff1, exponent1;
-// Array Vars
-var lights = [];
-var lightProps = {};
-// Entity Vars
-var light, light0, box1, sphere1;
-
 var defaultObj = {
     pos: {x: 0, y: 1, z: -2},
 }
@@ -149,10 +118,10 @@ var posMap = {
     posRight: {x: 2, y: 1, z: 0},
 }
 var posMap2 = {
-    posFront: {x: 0, y: 1, z: -3},
-    posBack: {x: 0, y: 1, z: 3},
-    posLeft: {x: -3, y: 1, z: 0},
-    posRight: {x: 3, y: 1, z: 0},
+    posFront: {x: 0, y: 1.5, z: -3},
+    posBack: {x: 0, y: 2, z: 3},
+    posLeft: {x: -3, y: 3, z: 0},
+    posRight: {x: 3, y: 4, z: 0},
 }
 var posMap3 = {
     posFront: {x: 0, y: 2, z: -4},
@@ -160,10 +129,22 @@ var posMap3 = {
     posLeft: {x: -4, y: 2, z: 0},
     posRight: {x: 4, y: 2, z: 0},
     posup: {x: 0, y: 3, z: 0},
-
 }
-var posMapArray = [posMap,posMap2,posMap3]
-var posMapKeys = Object.keys(posMap3);
+var posMap4 = {
+    posFront: {x: -2, y: 2, z: -4},
+    posFront2: {x: 2, y: 3, z: -4},
+    posBack: {x: -2, y: 2, z: 4},
+    posBack2: {x: 2, y: 2, z: 4},
+    posLeft: {x: -4, y: 2, z: 0},
+    posLeft2: {x: -4, y: 3, z: 0},
+    posRight: {x: 4, y: 2, z: 0},
+    posRight2: {x: 4, y: 3, z: 0},
+    posUp: {x: -2, y: 4, z: 0},
+    posU2: {x: 2, y: 4, z: 0},
+}
+
+var posMapArray = [posMap,posMap2,posMap3,posMap4]
+
 var rotationMap = {
     x1: Quat.fromPitchYawRollDegrees(90,0,0),
     x2: Quat.fromPitchYawRollDegrees(-90,0,0),
@@ -173,8 +154,33 @@ var rotationMap = {
     z1: Quat.fromPitchYawRollDegrees(0,0,90),
     z2: Quat.fromPitchYawRollDegrees(0,0,90)
 }
+
 var rotationMapKeys = Object.keys(rotationMap);
-var allLightSources = [];
+
+var lightSouceMakerObj = {
+    allLightSources: [],
+    addToLightSource: function(lightSource){
+        this.allLightSources.push(lightSource);
+    },
+    deleteFromLightSource: function(index){
+        var lightSource = this.allLightSources.splice(index,1);
+        this.lightSource.tearDown;
+    },
+    resetAll: function(){
+        allLightSources.forEach(function(ls){
+            ls.tearDown();
+            this.allLightSources = [];
+        })
+    },
+    makeLight: function(posMap, rotMap){
+        var keys = Object.keys(posMap);
+        keys.forEach(function(pos){
+            var lightSource = new LightSourceMaker(posMap[pos]);
+            this.allLightSources.push(lightSource);
+        })
+    }
+
+}
 var userData = {
     grabbableKey: {
         grabbable: false
@@ -207,6 +213,7 @@ var userData = {
         }
     },
 }
+
 function LightSourceMaker(pos){
     print("in LIght source Maker")
     pos = pos || defaultObj.pos;
@@ -404,242 +411,138 @@ function LightSourceMaker(pos){
     }
 }
 function changeSpeed(newSpeed){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeSpeed(newSpeed);
     })
 }
 function changePitch(newPitch){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changePitch(newPitch);
     })
 }
 function changeYaw(newYaw){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeYaw(newYaw);
     })
 }
 function changeRoll(newRoll){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeRoll(newRoll);
     })
 }
 function changeFallOff(newRadius){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeFallOff(newRadius);
     })
 }
 function changeExponent(newExponent){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeExponent(newExponent);
     })
 }
 function changeCutoff(newCutoff){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeCutoff(newCutoff);
     })
 }
 function changeRed(newRed){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeRed(newRed);
     })
 }
 function changeGreen(newGreen){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeGreen(newGreen);
     })
 }
 function changeBlue(newBlue){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeBlue(newBlue);
     })
 }
 function changeIntensity(newIntensity){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.enable) return;
         source.changeIntensity(newIntensity);
     })
 }
 function changeCenterIntensity(newIntensity){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.centerEnable) return;
         source.changeCenterIntensity(newIntensity);
     })
 }
 function changeCenterRed(newRed){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.centerEnable) return;
         source.changeCenterRed(newRed);
     })
 }
 function changeCenterGreen(newGreen){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.centerEnable) return;
         source.changeCenterGreen(newGreen);
     })
 }
 function changeCenterBlue(newBlue){
-    allLightSources.forEach(function(source){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
         if (!source.centerEnable) return;
         source.changeCenterBlue(newBlue);
     })
 }
 function toggleEnable(i){
-    allLightSources.forEach(function(source, index){
+    lightSouceMakerObj.allLightSources.forEach(function(source, index){
         if (i === index) source.toggleEnable();
     })
 };
 function toggleCenterEnable(i){
-    allLightSources.forEach(function(source, index){
+    lightSouceMakerObj.allLightSources.forEach(function(source, index){
         if (i === index) source.toggleCenterEnable();
     })
 };
-// // function lightSource(){
-//     print("Creating Spotlight");
-//     var pos = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, {x: 0, y: 1, z: -2}));
-//
-//     box1 = Entities.addEntity({
-//         name: "The Spot Light",
-//         description: "",
-//         type: "Box",
-//         position: pos,
-//         dimensions: {
-//             x: 0.35,
-//             y: 0.35,
-//             z: 0.35
-//         },
-//         dynamic: wantDynamic,
-//         gravity: {x:0, y:-2, z:0},
-//         angularDamping: 0,
-//         friction: 0,
-//         color:{
-//             red: 100,
-//             blue: 0,
-//             green: 0
-//         }
-//     });
-//
-//     sphere1 = Entities.addEntity({
-//         name: "Spot Light Sphere",
-//         description: "",
-//         type: "Sphere",
-//         position: pos,
-//
-//         dimensions: {
-//             x: 0.5,
-//             y: 0.5,
-//             z: 0.5
-//         },
-//         dynamic: wantDynamic,
-//         gravity: {x:0, y:-2, z:0},
-//         angularDamping: 0,
-//         friction: 0,
-//         color:{
-//             red: 100,
-//             blue: 0,
-//             green: 0
-//         },
-//         collisionless: true,
-//         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
-//         parentID: box1
-//     });
-//
-//     var lightProps = {
-//         name: "Spot Light Emitter 1",
-//         description: "",
-//         type: "Light",
-//         position: pos,
-//         dimensions: {
-//             x: 60,
-//             y: 60,
-//             z: 60
-//         },
-//         dynamic: wantDynamic,
-//         gravity: {x:0, y:-2, z:0},
-//         angularDamping: 0,
-//         color:{red: 255,
-//             blue: 255,
-//             green: 255
-//         },
-//         intensity: 1000,
-//         falloffRadius: 0,
-//         isSpotlight: 0,
-//         exponent: 1,
-//         cutoff: 10,
-//         collisionless: true,
-//         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
-//         parentID: box1
-//     };
-//
-//     // Iluminator
-//     lightProps.isSpotlight = 0;
-//     light0 = Entities.addEntity(lightProps);
-//
-//     lightProps.isSpotlight = 1;
-//     lightProps.rotation = Quat.fromPitchYawRollDegrees(90,0,0)
-//     lights.push(Entities.addEntity(lightProps));
-//
-//     lightProps.isSpotlight = 1;
-//     lightProps.rotation = Quat.fromPitchYawRollDegrees(-90,0,0);
-//     lights.push(Entities.addEntity(lightProps));
-//
-//     lightProps.isSpotlight = 1;
-//     lightProps.rotation = Quat.fromPitchYawRollDegrees(0,90,0);
-//     lights.push(Entities.addEntity(lightProps));
-//
-//     lightProps.isSpotlight = 1;
-//     lightProps.rotation = Quat.fromPitchYawRollDegrees(0,-90,0);
-//     lights.push(Entities.addEntity(lightProps));
-//
-//     lightProps.isSpotlight = 1;
-//     lightProps.rotation = Quat.fromPitchYawRollDegrees(0,0,90);
-//     lights.push(Entities.addEntity(lightProps));
-//
-//     lightProps.isSpotlight = 1;
-//     lightProps.rotation = Quat.fromPitchYawRollDegrees(180,0,0);
-//     lights.push(Entities.addEntity(lightProps));
-// }
+
 function midiEventReceived(eventData) {
     // if (eventData.device != midiInDeviceId || eventData.channel != midiChannel ){
     //     return;
     // }
     log("eventData", eventData)
-// Light Speed
+    // Light Speed
     if (eventData.note == novationMap.knob_1){
         var speed = eventData.velocity/2;
         changeSpeed(speed);
     }
 
-// Light Pitch
+    // Light Pitch
     if (eventData.note == novationMap.knob_2){
         changePitch(eventData.velocity);
     }
 
-// Light Yaw
+    // Light Yaw
     if (eventData.note == novationMap.knob_3){
         changeYaw(eventData.velocity);
     }
 
-// Light Roll
+    // Light Roll
     if (eventData.note == novationMap.knob_4){
         changeRoll(eventData.velocity);
     }
 
-// Light Fall Off Radius
+    // Light Fall Off Radius
     if (eventData.note == novationMap.knob_5){
         changeFallOff(eventData.velocity);
     }
 
-// Light exponent
+    // Light exponent
     if (eventData.note == novationMap.circle_up){
         circleValueEdit(50, 'up');
         changeExponent(circleValue);
@@ -650,7 +553,7 @@ function midiEventReceived(eventData) {
         changeExponent(circleValue);
     }
 
-// Light cutoff
+    // Light cutoff
     if (eventData.note == novationMap.up){
         directionValueEdit(50, 'up');
         changeCutoff(directionValue);
@@ -661,22 +564,22 @@ function midiEventReceived(eventData) {
         changeCutoff(directionValue);
     }
 
-// Light Re d
+    // Light Red
     if (eventData.note == novationMap.knob_6){
         changeRed(eventData.velocity);
     }
 
-// Light green
+    // Light green
     if (eventData.note == novationMap.knob_7){
         changeGreen(eventData.velocity);
     }
 
-// Lightblue
+    // Lightblue
     if (eventData.note == novationMap.knob_8){
         changeBlue(eventData.velocity);
     }
 
-// Light Intensicty
+    // Light Intensicty
     if (eventData.note == novationMap.track_left){
         trackValueEdit(5, 'down');
         changeIntensity(trackValue);
@@ -686,7 +589,7 @@ function midiEventReceived(eventData) {
         changeIntensity(trackValue);
     }
 
-// Center Light
+    // Center Light
     if (eventData.note == novationMap.track_left){
         trackValueEdit(50, 'down');
         changeCenterIntensity(trackValue);
@@ -696,18 +599,18 @@ function midiEventReceived(eventData) {
         changeCenterIntensity(trackValue);
     }
 
-// Center Light Red
+    // Center Light Red
     if (eventData.note == novationMap.knob_6){
         changeCenterRed(eventData.velocity);
     }
 
-// Center Light green
+    // Center Light green
     if (eventData.note == novationMap.knob_7){
         changeCenterGreen(eventData.velocity);
     }
 
 
-// Center Light blue
+    // Center Light blue
     if (eventData.note == novationMap.knob_8){
         changeCenterBlue(eventData.velocity);
     }
@@ -811,19 +714,13 @@ function midiConfig(){
 }
 
 function scriptEnding() {
-    function changeCenterBlue(newBlue){
-        allLightSources.forEach(function(source){
-            source.tearDown();
-        })
-    }
+    allLightSources.forEach(function(source){
+        source.tearDown();
+    })
 }
 
 midiConfig();
 function makeLight(){
-    posMapKeys.forEach(function(pos){
-        var lightSource = new LightSourceMaker(posMap3[pos]);
-        allLightSources.push(lightSource);
-    })
 
 }
 makeLight();
