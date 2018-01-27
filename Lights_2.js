@@ -2,7 +2,53 @@
 //
 //  Created by Bruce Brown on 1/9/2018
 //
+if (!Math.sign) {
+  Math.sign = function(x) {
+    // If x is NaN, the result is NaN.
+    // If x is -0, the result is -0.
+    // If x is +0, the result is +0.
+    // If x is negative and not -0, the result is -1.
+    // If x is positive and not +0, the result is +1.
+    return ((x > 0) - (x < 0)) || +x;
+    // A more aesthetical persuado-representation is shown below
+    //
+    // ( (x > 0) ? 0 : 1 )  // if x is negative then negative one
+    //          +           // else (because you cant be both - and +)
+    // ( (x < 0) ? 0 : -1 ) // if x is positive then positive one
+    //         ||           // if x is 0, -0, or NaN, or not a number,
+    //         +x           // Then the result will be x, (or) if x is
+    //                      // not a number, then x converts to number
+  };
+}
+if (typeof Object.assign != 'function') {
+  // Must be writable: true, enumerable: false, configurable: true
+  Object.defineProperty(Object, "assign", {
+    value: function assign(target, varArgs) { // .length of function is 2
+      'use strict';
+      if (target == null) { // TypeError if undefined or null
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
 
+      var to = Object(target);
+
+      for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+
+        if (nextSource != null) { // Skip over if undefined or null
+          for (var nextKey in nextSource) {
+            // Avoid bugs when hasOwnProperty is shadowed
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+      }
+      return to;
+    },
+    writable: true,
+    configurable: true
+  });
+}
 var novationMap = {
     knob_1: 21,
     knob_2: 22,
@@ -33,7 +79,36 @@ var novationMap = {
     up: 104,
     down: 105,
     track_left: 106,
-    track_right: 107
+    track_right: 107,
+    c: 48,
+    cS: 49,
+    d: 50,
+    dS: 51,
+    e: 52,
+    f: 53,
+    fS: 54,
+    g: 55,
+    gS: 56,
+    a: 57,
+    aS: 58,
+    b: 59,
+    c2: 60,
+    c2S: 61,
+    d2: 62,
+    d2S: 63,
+    e2: 64,
+    f2: 65,
+    f2S: 66,
+    g2: 67,
+    g2S: 68,
+    a2: 69,
+    a2S: 70,
+    b2: 71,
+    c3: 72
+}
+
+function randomize(min,max){
+    return Math.random() * (max - min) + min;
 }
 
 var novationKeys = Object.keys(novationMap);
@@ -112,53 +187,95 @@ var defaultObj = {
 }
 
 var posMap = {
-    posFront: {x: 0, y: 1, z: -2},
-    posBack: {x: 0, y: 1, z: 2},
-    posLeft: {x: -2, y: 1, z: 0},
-    posRight: {x: 2, y: 1, z: 0},
+    posFront: {x: 0, y: 3, z: -4},
+    posBack: {x: 0, y: 3, z: 4},
+    posLeft: {x: -4, y: 3, z: 0},
+    posRight: {x: 4, y: 3, z: 0},
 }
 var posMap2 = {
-    posFront: {x: 0, y: 1.5, z: -3},
-    posBack: {x: 0, y: 2, z: 3},
-    posLeft: {x: -3, y: 3, z: 0},
+    posFront: {x: 0, y: 3, z: -3},
+    posBack: {x: 0, y: 4, z: 3},
+    posLeft: {x: -3, y: 4, z: 0},
     posRight: {x: 3, y: 4, z: 0},
 }
 var posMap3 = {
-    posFront: {x: 0, y: 2, z: -4},
-    posBack: {x: 0, y: 2, z: 4},
-    posLeft: {x: -4, y: 2, z: 0},
-    posRight: {x: 4, y: 2, z: 0},
-    posup: {x: 0, y: 3, z: 0},
+    posFront: {x: 0, y: 3, z: -4},
+    posBack: {x: 0, y: 3, z: 4},
+    posLeft: {x: -4, y: 3, z: 0},
+    posRight: {x: 4, y: 3, z: 0},
+    // posup: {x: 0, y: 3, z: 0},
 }
 var posMap4 = {
-    posFront: {x: -2, y: 2, z: -4},
-    posFront2: {x: 2, y: 3, z: -4},
-    posBack: {x: -2, y: 2, z: 4},
-    posBack2: {x: 2, y: 2, z: 4},
-    posLeft: {x: -4, y: 2, z: 0},
+    posFront: {x: -2, y: 3, z: -4},
+    // posFront2: {x: 2, y: 3, z: -4},
+    posBack: {x: -2, y: 3, z: 4},
+    posBack2: {x: 2, y: 3, z: 4},
+    // posLeft: {x: -4, y: 2, z: 0},
     posLeft2: {x: -4, y: 3, z: 0},
-    posRight: {x: 4, y: 2, z: 0},
-    posRight2: {x: 4, y: 3, z: 0},
+    posRight: {x: 4, y: 3, z: 0},
+    // posRight2: {x: 4, y: 3, z: 0},
     posUp: {x: -2, y: 4, z: 0},
-    posU2: {x: 2, y: 4, z: 0},
+    // posU2: {x: 2, y: 4, z: 0},
 }
 
 var posMapArray = [posMap,posMap2,posMap3,posMap4]
 
 var rotationMap = {
     x1: Quat.fromPitchYawRollDegrees(90,0,0),
-    x2: Quat.fromPitchYawRollDegrees(-90,0,0),
+    // x2: Quat.fromPitchYawRollDegrees(-90,0,0),
     x3: Quat.fromPitchYawRollDegrees(180,0,0),
-    y1: Quat.fromPitchYawRollDegrees(0,90,0),
+    // y1: Quat.fromPitchYawRollDegrees(0,90,0),
     y2: Quat.fromPitchYawRollDegrees(0,-90,0),
-    z1: Quat.fromPitchYawRollDegrees(0,0,90),
+    // z1: Quat.fromPitchYawRollDegrees(0,0,90),
     z2: Quat.fromPitchYawRollDegrees(0,0,90)
 }
 
-var rotationMapKeys = Object.keys(rotationMap);
+var rotationMap2 = {
+    x1: Quat.fromPitchYawRollDegrees(90,0,0),
+    // x2: Quat.fromPitchYawRollDegrees(-90,0,0),
+    x3: Quat.fromPitchYawRollDegrees(180,0,0),
+    y1: Quat.fromPitchYawRollDegrees(0,90,0),
+    // y2: Quat.fromPitchYawRollDegrees(0,-90,0),
+    y3: Quat.fromPitchYawRollDegrees(0,180,0),
+    z1: Quat.fromPitchYawRollDegrees(0,0,90),
+    // z2: Quat.fromPitchYawRollDegrees(0,0,90),
+    z3: Quat.fromPitchYawRollDegrees(0,0,180)
+}
+
+var rotationMap3 = {
+    x1: Quat.fromPitchYawRollDegrees(90,0,0),
+    y1: Quat.fromPitchYawRollDegrees(0,90,0),
+    z1: Quat.fromPitchYawRollDegrees(0,0,90),
+}
+
+var rotationMapArray = [rotationMap, rotationMap2, rotationMap3];
+
+var sizeMap1 = {
+    x: 1,
+    y: 1,
+    z: 1
+}
+var sizeMap2 = {
+    x: 5,
+    y: 5,
+    z: 5
+}
+var sizeMap3 = {
+    x: 10,
+    y: 10,
+    z: 10
+}
+var sizeMap4 = {
+    x: 1,
+    y: 5,
+    z: 7
+}
+
+var sizeMapArray = [sizeMap1,sizeMap2,sizeMap3,sizeMap4];
 
 var lightSouceMakerObj = {
     allLightSources: [],
+    currentlyOn: false,
     addToLightSource: function(lightSource){
         this.allLightSources.push(lightSource);
     },
@@ -167,17 +284,26 @@ var lightSouceMakerObj = {
         this.lightSource.tearDown;
     },
     resetAll: function(){
-        allLightSources.forEach(function(ls){
+        this.allLightSources.forEach(function(ls){
             ls.tearDown();
-            this.allLightSources = [];
         })
+        this.allLightSources = [];
     },
     makeLight: function(posMap, rotMap){
+        if (!this.currentlyOn) {
+            this.currentlyOn = true;
+        } else {
+            this.resetAll();
+        }
         var keys = Object.keys(posMap);
+        // log("keys", keys)
+        // log("rotMap", rotMap)
+
         keys.forEach(function(pos){
-            var lightSource = new LightSourceMaker(posMap[pos]);
+            var lightSource = new LightSourceMaker(posMap[pos], rotMap);
             this.allLightSources.push(lightSource);
-        })
+        }, this)
+        // log("this.allLightSources", this.allLightSources.length)
     }
 
 }
@@ -214,9 +340,102 @@ var userData = {
     },
 }
 
-function LightSourceMaker(pos){
-    print("in LIght source Maker")
+function makeColor(){
+    var red = randomize(0,255);
+    var green = randomize(0,255);
+    var blue = randomize(0,255);
+    var colorArray = [red,green,blue];
+    var arrayToGet0 = Math.floor(randomize(0,3));
+    colorArray[arrayToGet0] = 0;
+    return {
+        red: colorArray[0],
+        green: colorArray[1],
+        blue:colorArray[2]
+    }
+}
+
+var particleArray = [
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/atmosphere-particle-2.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/atmosphere-particle.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Baloon-Lamp-b.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Baloon-Lamp-c.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Baloon-Lanterns-1.js",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Baloon-Lanterns-1.json",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle-2.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Bokeh-Particle.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Fireball.jpg",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Firefly-Particle.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/particle-raindrop.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Particle-Spark.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/Particle-Sprite-Gen.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/particle-traingle-shard-mirror-h.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/particle-traingle-shard.png",
+    "http://hifi-content.s3.amazonaws.com/alan/dev/Particles/playaDust.png",
+]
+
+var defaultParticleProps =
+{
+    "accelerationSpread": {
+        "x": 1.5,
+        "y": 2,
+        "z": 1.5
+    },
+    "alpha": 0,
+    "alphaFinish": 0,
+    "alphaStart": 1,
+    "color": {
+        "blue": 200,
+        "green": 200,
+        "red": 200
+    },
+    "colorFinish": {
+        "blue": 200,
+        "green": 200,
+        "red": 200
+    },
+    "colorStart": {
+        "blue": 200,
+        "green": 200,
+        "red": 200
+    },
+    "dimensions": {
+        "x": 12.7225003242492676,
+        "y": 12.7225003242492676,
+        "z": 12.7225003242492676
+    },
+    "emitAcceleration": {
+        "x": -0.5,
+        "y": 2.5,
+        "z": -0.5
+    },
+    "emitOrientation": {
+        "w": 0.7070915699005127,
+        "x": -0.7071220278739929,
+        "y": -1.5258869098033756e-05,
+        "z": -1.5258869098033756e-05
+    },
+    "emitRate": 2.5,
+    "emitSpeed": 10,
+    "lifespan": 3.5,
+    "maxParticles": 10,
+    "particleRadius": 0.30,
+    "radiusFinish": 0.80,
+    "radiusStart": 0.05,
+    "rotation": {
+        "w": 0.998779296875,
+        "x": 0.0004730224609375,
+        "y": -0.04933243989944458,
+        "z": 0.0001373291015625
+    },
+    "speedSpread": 5,
+    "textures": "https://content.highfidelity.com/DomainContent/production/Particles/wispy-smoke.png",
+    "type": "ParticleEffect",
+    "userData": "{\"grabbableKey\":{\"grabbable\":false}}"
+}
+function LightSourceMaker(pos, rotMap){
+    // print("in LIght source Maker")
     pos = pos || defaultObj.pos;
+    var rotationMapKeys = Object.keys(rotMap);
     this.position = Vec3.sum(MyAvatar.position, Vec3.multiplyQbyV(MyAvatar.orientation, pos));
     this.box = Entities.addEntity({
         name: "The Spot Light",
@@ -228,6 +447,7 @@ function LightSourceMaker(pos){
             y: 0.35,
             z: 0.35
         },
+        visible: false,
         dynamic: wantDynamic,
         gravity: {x:0, y:-2, z:0},
         angularDamping: 0,
@@ -249,6 +469,7 @@ function LightSourceMaker(pos){
             z: 0.5
         },
         dynamic: wantDynamic,
+        visible: false,
         gravity: {x:0, y:-2, z:0},
         angularDamping: 0,
         friction: 0,
@@ -261,57 +482,82 @@ function LightSourceMaker(pos){
         // userData: JSON.stringify(userData),
         parentID: this.box
     });
+    var lookAt = Quat.lookAt(this.position, MyAvatar.position, {x:0,y:1,z:0});
+    log("lookAt", lookAt);
+    var color = makeColor();
+    var particleType = Math.floor(randomize(0,particleArray.length));
+    var overWriteParticleProps = {
+        position: this.position,
+        parentID: this.box,
+        "lifespan": 10,
+        emitOrientation: lookAt,
+        textures: particleArray[particleType],
+        // rotation: lookAt,
+        "colorFinish": color,
+        "colorStart": makeColor()
+    };
+
+    var newParticleProps = Object.assign({}, defaultParticleProps, overWriteParticleProps);
+    // this.particleGen = Entities.addEntity(newParticleProps);
     var lightProps = {
         name: "Spot Light Emitter 1",
         description: "",
         type: "Light",
         position: this.position,
         dimensions: {
-            x: 60,
-            y: 60,
-            z: 60
+            x: 10,
+            y: 10,
+            z: 10
         },
         dynamic: wantDynamic,
         gravity: {x:0, y:-2, z:0},
         angularDamping: 0,
-        color:{red: 255,
-            blue: 255,
-            green: 255
-        },
-        intensity: 1000,
-        falloffRadius: 0,
+        angularVelocity: {x: randomize(1,3), y: randomize(1,3), z:randomize(1,3)},
+        color: color,
+        intensity: randomize(1,4),
+        falloffRadius: randomize(100,300),
         isSpotlight: 0,
-        exponent: 1,
-        cutoff: 10,
+        exponent: randomize(.5,5),
+        cutoff: randomize(10,100),
         collisionless: true,
         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
         parentID: this.box
     };
+    this.particleVisible = true;
     this.light0 = Entities.addEntity(lightProps);
     this.lights = [];
     lightProps.isSpotlight = 1;
     rotationMapKeys.forEach(function(rotation){
-        lightProps.rotation = rotationMap[rotation];
+        lightProps.rotation = rotMap[rotation];
         this.lights.push(Entities.addEntity(lightProps));
     }, this);
-    this.speed = 1;
-    this.pitch = 0;
-    this.yaw = 0;
-    this.roll = 0;
-    this.fallOffRadius = 0;
-    this.exponent = 0;
-    this.cutoff = 0;
-    this.red = 0;
-    this.green = 0;
-    this.blue = 0;
-    this.centerRed = 0;
-    this.centerGreen = 0;
-    this.centerBlue = 0;
-    this.lightIntensity = 0;
-    this.centerIntensity = 0;
+    this.speed = 2;
+    this.pitch = 20;
+    this.yaw = 20;
+    this.roll = 20;
+    this.fallOffRadius = 1;
+    this.exponent = 1;
+    this.cutoff = 50;
+    this.red = 50;
+    this.green = 75;
+    this.blue = 100;
+    this.visible = true;
+    this.centerRed = 50;
+    this.centerGreen = 75;
+    this.centerBlue = 75;
+    this.lightIntensity = 2.5;
+    this.centerIntensity = 2.5;
     this.group = 0;
     this.enable = true;
     this.centerEnable = true;
+    this.turnOffParticle = function(){
+        this.particleVisible = !this.particleVisible;
+        props = {visible: this.particleVisible};
+        // Entities.editEntity(this.particleGen, props);
+    },
+    this.changeParticleType = function(){
+
+    }
     this.toggleEnable = function(){
         this.enable = !this.enable;
         print("enable " + this.enable);
@@ -329,12 +575,20 @@ function LightSourceMaker(pos){
         Entities.editEntity(this.box,{
             angularVelocity: {x:this.pitch, y:this.yaw, z: this.roll}
         })
+        var emitRate = lerp(0,127,0, 10, newPitch);
+        // Entities.editEntity(this.particleGen, {
+        //     emiteRate: emitRate
+        // })
     }
     this.changeYaw = function(newYaw){
         this.yaw = lerp (0,127,0,this.speed,newYaw)-this.speed/2;
         Entities.editEntity(this.box,{
             angularVelocity: {x:this.pitch, y:this.yaw, z: this.roll}
         })
+        // var emitSpeed = lerp(0,127,0, 5, newPitch);
+        // Entities.editEntity(this.particleGen, {
+        //     emitSpeed: emitSpeed
+        // })
     }
     this.changeRoll = function(newRoll){
         this.roll = lerp (0,127,0,this.speed,newRoll)-this.speed/2;
@@ -343,17 +597,17 @@ function LightSourceMaker(pos){
         })
     }
     this.changeFallOff = function(newRadius){
-        this.fallOffRadius = lerp (0,127,0.001,1,newRadius);
+        this.fallOffRadius = lerp (0,127,0.001,100,newRadius);
         props = {falloffRadius: this.fallOffRadius};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
     }
     this.changeExponent = function(newExponent){
-        this.exponent = lerp (0,127,1,1000,newExponent);
+        this.exponent = lerp (0,127,0.5,20,newExponent);
         props = {exponent: this.exponent};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
     }
     this.changeCutoff = function(newCutoff){
-        this.cutoff = lerp (0,127,0,1000,newCutoff);
+        this.cutoff = lerp (0,127,0,90,newCutoff);
         props = {cutoff: this.cutoff};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
     }
@@ -361,16 +615,19 @@ function LightSourceMaker(pos){
         this.red = lerp (0,127,0,255,newRed);
         props = {color: {red: this.red, green: this.green, blue: this.blue}};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+        // Entities.editEntity(this.particleGen, props);
     };
     this.changeGreen = function(newGreen){
         this.green = lerp (0,127,0,255,newGreen);
         props = {color: {red: this.red, green: this.green, blue: this.blue}};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+        // Entities.editEntity(this.particleGen, props);
     };
     this.changeBlue = function(newBlue){
         this.blue = lerp (0,127,0,255,newBlue);
         props = {color: {red: this.red, green: this.green, blue: this.blue}};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+        // Entities.editEntity(this.particleGen, props);
     };
     this.changeCenterRed = function(newRed){
         this.centerRed = lerp (0,127,0,255,newRed);
@@ -391,23 +648,55 @@ function LightSourceMaker(pos){
         Entities.editEntity(this.sphere, props);
     };
     this.changeIntensity = function(newIntensity){
-        this.lightIntensity = lerp (0,127,0,500,newIntensity);
+        this.lightIntensity = lerp (0,127,0,10,newIntensity);
         props = {intensity: this.lightIntensity};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
         Entities.editEntity(this.box, props);
     };
     this.changeCenterIntensity = function(newCenterIntensity){
-        this.centerIntensity = lerp (0,127,0,1000,newCenterIntensity);
+        this.centerIntensity = lerp (0,127,0,10,newCenterIntensity);
         props = {intensity: this.lightIntensity};
         Entities.editEntity(this.light0, props);
     };
+    this.changeSize = function(newSize){
+        props = {dimensions: newSize};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+    }
+    this.turnOff = function(){
+        props = {intensity: 0};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+        Entities.editEntity(this.light0, props);
+    }
+    this.turnOn = function(){
+        props = {intensity: this.lightIntensity};
+        this.lights.forEach(function(light) {Entities.editEntity(light, props)});
+        props = {intensity: this.centerIntensity};
+        Entities.editEntity(this.light0, props);
+    }
+    this.toggleVisible = function(){
+        // log("in toggle visible");
+        this.visible = !this.visible;
+        props = {visible: this.visible};
+        Entities.editEntity(this.box, props);
+        Entities.editEntity(this.sphere, props);
+
+    }
     this.setup = function(){
 
     }
     this.tearDown = function(){
         print("running TearDown")
-        print(JSON.stringify(this));
         Entities.deleteEntity(this.box);
+    }
+    this.move = function(amount){
+        // this.position = Vec3.sum(Vec3.sum(MyAvatar.position,amount), Vec3.multiplyQbyV(MyAvatar.orientation, this.position));
+        this.position.x = this.position.x + amount.x * Math.sign(this.position.x);
+        // this.position.y = this.position.y + amount.y * Math.sign(this.position.y);
+        this.position.z = this.position.z + amount.z * Math.sign(this.position.z);
+        // log("this.position", this.position);
+        Entities.editEntity(this.box,{
+            position: this.position,
+        })
     }
 }
 function changeSpeed(newSpeed){
@@ -500,6 +789,49 @@ function changeCenterBlue(newBlue){
         source.changeCenterBlue(newBlue);
     })
 }
+function changeSize(newSize){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        if (!source.enable) return;
+        source.changeSize(newSize);
+    })
+}
+function move(amount){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        if (!source.enable) return;
+        source.move(amount);
+    })
+}
+function turnOff(){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        if (!source.enable) return;
+        source.turnOff();
+    })
+}
+function turnOn(){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        if (!source.enable) return;
+        source.turnOn();
+    })
+}
+function toggleVisible(){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        if (!source.enable) return;
+        source.toggleVisible();
+    })
+}
+function turnOffParticle(){
+    lightSouceMakerObj.allLightSources.forEach(function(source){
+        if (!source.centerEnable) return;
+        if (!source.enable) return;
+        source.turnOffParticle();
+    })
+}
+
 function toggleEnable(i){
     lightSouceMakerObj.allLightSources.forEach(function(source, index){
         if (i === index) source.toggleEnable();
@@ -510,8 +842,20 @@ function toggleCenterEnable(i){
         if (i === index) source.toggleCenterEnable();
     })
 };
-
+//knobs
+// {"bend":0,"channel":1,"device":0,"note":21,"program":0,"raw":6297008,"status":176,"type":11,"velocity":96}
+//buttons
+// {"bend":0,"channel":10,"device":0,"note":40,"program":0,"raw":10377,"status":137,"type":8,"velocity":0}
+//circle
+// {"bend":0,"channel":1,"device":0,"note":108,"program":0,"raw":27824,"status":176,"type":11,"velocity":0}
+// arrows
+// {"bend":0,"channel":1,"device":0,"note":104,"program":0,"raw":26800,"status":176,"type":11,"velocity":0}
+// track
+// {"bend":0,"channel":1,"device":0,"note":107,"program":0,"raw":27568,"status":176,"type":11,"velocity":0}
+// novationKeys
+// {"bend":0,"channel":1,"device":0,"note":48,"program":0,"raw":12416,"status":128,"type":8,"velocity":0}
 function midiEventReceived(eventData) {
+
     // if (eventData.device != midiInDeviceId || eventData.channel != midiChannel ){
     //     return;
     // }
@@ -544,23 +888,23 @@ function midiEventReceived(eventData) {
 
     // Light exponent
     if (eventData.note == novationMap.circle_up){
-        circleValueEdit(50, 'up');
+        circleValueEdit(5, 'up');
         changeExponent(circleValue);
     }
 
     if (eventData.note == novationMap.circle_down){
-        circleValueEdit(50, 'down');
+        circleValueEdit(5, 'down');
         changeExponent(circleValue);
     }
 
     // Light cutoff
     if (eventData.note == novationMap.up){
-        directionValueEdit(50, 'up');
+        directionValueEdit(5, 'up');
         changeCutoff(directionValue);
     }
 
     if (eventData.note == novationMap.down){
-        directionValueEdit(10, 'down');
+        directionValueEdit(5, 'down');
         changeCutoff(directionValue);
     }
 
@@ -591,11 +935,11 @@ function midiEventReceived(eventData) {
 
     // Center Light
     if (eventData.note == novationMap.track_left){
-        trackValueEdit(50, 'down');
+        trackValueEdit(5, 'down');
         changeCenterIntensity(trackValue);
     }
     if (eventData.note == novationMap.track_right){
-        trackValueEdit(50, 'up');
+        trackValueEdit(5, 'up');
         changeCenterIntensity(trackValue);
     }
 
@@ -638,6 +982,94 @@ function midiEventReceived(eventData) {
     }
     if (eventData.note == novationMap.pad_8){
         toggleCenterEnable(3);
+    }
+    if (eventData.note == novationMap.c && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[0], rotationMapArray[0]);
+    }
+    if (eventData.note == novationMap.cS && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[1], rotationMapArray[0]);
+    }
+    if (eventData.note == novationMap.d && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[2], rotationMapArray[0]);
+    }
+    if (eventData.note == novationMap.dS && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[3], rotationMapArray[0]);
+    }
+    if (eventData.note == novationMap.e && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[0], rotationMapArray[2]);
+    }
+    if (eventData.note == novationMap.f && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[1], rotationMapArray[2]);
+    }
+    if (eventData.note == novationMap.fS && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[2], rotationMapArray[2]);
+    }
+    if (eventData.note == novationMap.g && eventData.status == 144){
+        lightSouceMakerObj.makeLight(posMapArray[3], rotationMapArray[2]);
+    }
+    if (eventData.note == novationMap.a && eventData.status == 144){
+        changeSize(sizeMapArray[0]);
+    }
+    if (eventData.note == novationMap.aS && eventData.status == 144){
+        changeSize(sizeMapArray[1]);
+    }
+    if (eventData.note == novationMap.b && eventData.status == 144){
+        changeSize(sizeMapArray[2]);
+    }
+    if (eventData.note == novationMap.c2 && eventData.status == 144){
+        changeSize(sizeMapArray[3]);
+    }
+    if (eventData.note === novationMap.pad_9 && eventData.status == 153){
+        turnOff();
+    }
+    if (eventData.note === novationMap.pad_9 && eventData.status == 137){
+        turnOn();
+    }
+    if (eventData.note === novationMap.pad_10 && eventData.status == 153){
+        turnOffParticle();
+    }
+    if (eventData.note === novationMap.c3 && eventData.status == 144){
+        toggleVisible();
+    }
+    if (eventData.note === novationMap.f2 && eventData.status == 144){
+        dis = 1;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.g2 && eventData.status == 144){
+        dis = -1;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.a2 && eventData.status == 144){
+        dis = 2.5;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.b2 && eventData.status == 144){
+        dis = -2.5;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.f2S && eventData.status == 144){
+        dis = 2.5;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.f2S && eventData.status == 128){
+        dis = -2.5;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.g2S && eventData.status == 144){
+        dis = 5;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
+    }
+    if (eventData.note === novationMap.g2S && eventData.status == 128){
+        dis = -5;
+        var amount = {x: dis, y: dis, z: dis};
+        move(amount);
     }
 }
 
@@ -714,9 +1146,7 @@ function midiConfig(){
 }
 
 function scriptEnding() {
-    allLightSources.forEach(function(source){
-        source.tearDown();
-    })
+    lightSouceMakerObj.resetAll();
 }
 
 midiConfig();
