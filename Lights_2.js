@@ -106,10 +106,12 @@ var novationMap = {
     b2: 71,
     c3: 72
 }
-
 function randomize(min,max){
     return Math.random() * (max - min) + min;
 }
+
+var TWEEN = Script.require("./tween.js")
+
 
 var novationKeys = Object.keys(novationMap);
 function matchNoteToKey(note){
@@ -132,6 +134,7 @@ function log(describer, obj) {
 var circleValue = 0;
 var directionValue = 0;
 var trackValue = 0;
+var centerIntensityMIDIValue = 0
 function circleValueEdit(amount, direction){
     if (direction === 'up'){
         circleValue += amount;
@@ -165,6 +168,18 @@ function trackValueEdit(amount, direction){
         if (trackValue <= 0) trackValue = 0
     }
 }
+function centerIntensityMIDIValueEdit(amount, direction){
+    if (direction === 'up'){
+        centerIntensityMIDIValue += amount;
+        if (centerIntensityMIDIValue >= 127) centerIntensityMIDIValue = 127
+        if (centerIntensityMIDIValue <= 0) centerIntensityMIDIValue = 0
+    } else {
+        centerIntensityMIDIValue -= amount;
+        if (centerIntensityMIDIValue >= 127) centerIntensityMIDIValue = 127
+        if (centerIntensityMIDIValue <= 0) centerIntensityMIDIValue = 0
+    }
+}
+
 
 // Misc
 var wantDynamic = false;
@@ -187,14 +202,14 @@ var defaultObj = {
 }
 
 var posMap = {
-    posFront: {x: 0, y: 3, z: -4},
-    posBack: {x: 0, y: 3, z: 4},
-    posLeft: {x: -4, y: 3, z: 0},
-    posRight: {x: 4, y: 3, z: 0},
+    posFront: {x: -3, y: 3, z: 0},
+    posBack: {x: 3, y: 3, z: 0},
+    // posLeft: {x: -3, y: 2, z: 0},
+    // posRight: {x: 3, y: 2, z: 0},
 }
 var posMap2 = {
-    posFront: {x: 0, y: 3, z: -3},
-    posBack: {x: 0, y: 4, z: 3},
+    // posFront: {x: 0, y: 3, z: -3},
+    // posBack: {x: 0, y: 4, z: 3},
     posLeft: {x: -3, y: 4, z: 0},
     posRight: {x: 3, y: 4, z: 0},
 }
@@ -222,29 +237,29 @@ var posMapArray = [posMap,posMap2,posMap3,posMap4]
 
 var rotationMap = {
     x1: Quat.fromPitchYawRollDegrees(90,0,0),
-    // x2: Quat.fromPitchYawRollDegrees(-90,0,0),
-    x3: Quat.fromPitchYawRollDegrees(180,0,0),
+    x2: Quat.fromPitchYawRollDegrees(-90,0,0),
+    // x3: Quat.fromPitchYawRollDegrees(180,0,0),
     // y1: Quat.fromPitchYawRollDegrees(0,90,0),
-    y2: Quat.fromPitchYawRollDegrees(0,-90,0),
+    // y2: Quat.fromPitchYawRollDegrees(0,-90,0),
     // z1: Quat.fromPitchYawRollDegrees(0,0,90),
-    z2: Quat.fromPitchYawRollDegrees(0,0,90)
+    // z2: Quat.fromPitchYawRollDegrees(0,0,90)
 }
 
 var rotationMap2 = {
     x1: Quat.fromPitchYawRollDegrees(90,0,0),
     // x2: Quat.fromPitchYawRollDegrees(-90,0,0),
-    x3: Quat.fromPitchYawRollDegrees(180,0,0),
+    // x3: Quat.fromPitchYawRollDegrees(180,0,0),
     y1: Quat.fromPitchYawRollDegrees(0,90,0),
     // y2: Quat.fromPitchYawRollDegrees(0,-90,0),
-    y3: Quat.fromPitchYawRollDegrees(0,180,0),
-    z1: Quat.fromPitchYawRollDegrees(0,0,90),
+    // y3: Quat.fromPitchYawRollDegrees(0,180,0),
+    // z1: Quat.fromPitchYawRollDegrees(0,0,90),
     // z2: Quat.fromPitchYawRollDegrees(0,0,90),
-    z3: Quat.fromPitchYawRollDegrees(0,0,180)
+    // z3: Quat.fromPitchYawRollDegrees(0,0,180)
 }
 
 var rotationMap3 = {
     x1: Quat.fromPitchYawRollDegrees(90,0,0),
-    y1: Quat.fromPitchYawRollDegrees(0,90,0),
+    // y1: Quat.fromPitchYawRollDegrees(0,90,0),
     z1: Quat.fromPitchYawRollDegrees(0,0,90),
 }
 
@@ -300,6 +315,7 @@ var lightSouceMakerObj = {
         // log("rotMap", rotMap)
 
         keys.forEach(function(pos){
+            // log("pos", pos);
             var lightSource = new LightSourceMaker(posMap[pos], rotMap);
             this.allLightSources.push(lightSource);
         }, this)
@@ -483,7 +499,7 @@ function LightSourceMaker(pos, rotMap){
         parentID: this.box
     });
     var lookAt = Quat.lookAt(this.position, MyAvatar.position, {x:0,y:1,z:0});
-    log("lookAt", lookAt);
+    // log("lookAt", lookAt);
     var color = makeColor();
     var particleType = Math.floor(randomize(0,particleArray.length));
     var overWriteParticleProps = {
@@ -500,25 +516,25 @@ function LightSourceMaker(pos, rotMap){
     var newParticleProps = Object.assign({}, defaultParticleProps, overWriteParticleProps);
     // this.particleGen = Entities.addEntity(newParticleProps);
     var lightProps = {
-        name: "Spot Light Emitter 1",
+        name: "__Mil Midi Point Light",
         description: "",
         type: "Light",
         position: this.position,
         dimensions: {
-            x: 10,
-            y: 10,
-            z: 10
+            x: 15,
+            y: 15,
+            z: 15
         },
         dynamic: wantDynamic,
         gravity: {x:0, y:-2, z:0},
         angularDamping: 0,
-        angularVelocity: {x: randomize(1,3), y: randomize(1,3), z:randomize(1,3)},
+        angularVelocity: {x: randomize(0.5,1.5), y: randomize(0.5,1.5), z:randomize(0.5,1.5)},
         color: color,
-        intensity: randomize(1,4),
-        falloffRadius: randomize(100,300),
+        intensity: randomize(.5,2),
+        falloffRadius: randomize(100,150),
         isSpotlight: 0,
-        exponent: randomize(.5,5),
-        cutoff: randomize(10,100),
+        exponent: randomize(.5,2),
+        cutoff: randomize(10,20),
         collisionless: true,
         userData: "{ \"grabbableKey\": { \"grabbable\": false} }",
         parentID: this.box
@@ -527,6 +543,13 @@ function LightSourceMaker(pos, rotMap){
     this.light0 = Entities.addEntity(lightProps);
     this.lights = [];
     lightProps.isSpotlight = 1;
+    lightProps.dimensions = {
+                x: 40,
+                y: 40,
+                z: 40
+            };
+    lightProps.color = makeColor();
+    lightProps.name = "__Mil Midi spot Light",
     rotationMapKeys.forEach(function(rotation){
         lightProps.rotation = rotMap[rotation];
         this.lights.push(Entities.addEntity(lightProps));
@@ -545,8 +568,8 @@ function LightSourceMaker(pos, rotMap){
     this.centerRed = 50;
     this.centerGreen = 75;
     this.centerBlue = 75;
-    this.lightIntensity = 2.5;
-    this.centerIntensity = 2.5;
+    this.lightIntensity = 2;
+    this.centerIntensity = 2;
     this.group = 0;
     this.enable = true;
     this.centerEnable = true;
@@ -613,19 +636,25 @@ function LightSourceMaker(pos, rotMap){
     }
     this.changeRed = function(newRed){
         this.red = lerp (0,127,0,255,newRed);
-        props = {color: {red: this.red, green: this.green, blue: this.blue}};
+        var random = [0, this.green];
+        var choice = random[Math.floor(randomize(0,1))]
+        props = {color: {red: this.blue, green: random[choice], blue: this.red}};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
         // Entities.editEntity(this.particleGen, props);
     };
     this.changeGreen = function(newGreen){
         this.green = lerp (0,127,0,255,newGreen);
-        props = {color: {red: this.red, green: this.green, blue: this.blue}};
+        var random = [0, this.green];
+        var choice = random[Math.floor(randomize(0,1))]
+        props = {color: {red: this.blue, green: random[choice], blue: this.red}};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
         // Entities.editEntity(this.particleGen, props);
     };
     this.changeBlue = function(newBlue){
         this.blue = lerp (0,127,0,255,newBlue);
-        props = {color: {red: this.red, green: this.green, blue: this.blue}};
+        var random = [0, this.green];
+        var choice = random[Math.floor(randomize(0,1))]
+        props = {color: {red: this.blue, green: random[choice], blue: this.red}};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
         // Entities.editEntity(this.particleGen, props);
     };
@@ -648,15 +677,18 @@ function LightSourceMaker(pos, rotMap){
         Entities.editEntity(this.sphere, props);
     };
     this.changeIntensity = function(newIntensity){
-        this.lightIntensity = lerp (0,127,0,10,newIntensity);
+        this.lightIntensity = lerp (0,127,0,9,newIntensity);
         props = {intensity: this.lightIntensity};
         this.lights.forEach(function(light) {Entities.editEntity(light, props)});
         Entities.editEntity(this.box, props);
     };
     this.changeCenterIntensity = function(newCenterIntensity){
-        this.centerIntensity = lerp (0,127,0,10,newCenterIntensity);
-        props = {intensity: this.lightIntensity};
+        // log("changeCenterIntensity in object", newCenterIntensity)
+
+        this.centerIntensity = lerp (0,127,0,4,newCenterIntensity);
+        props = {intensity: this.centerIntensity};
         Entities.editEntity(this.light0, props);
+
     };
     this.changeSize = function(newSize){
         props = {dimensions: newSize};
@@ -761,12 +793,15 @@ function changeBlue(newBlue){
 }
 function changeIntensity(newIntensity){
     lightSouceMakerObj.allLightSources.forEach(function(source){
+        // log("source", source)
         if (!source.enable) return;
         source.changeIntensity(newIntensity);
     })
 }
 function changeCenterIntensity(newIntensity){
+    // log("in general change center intensity")
     lightSouceMakerObj.allLightSources.forEach(function(source){
+        // log("Center source", source)
         if (!source.centerEnable) return;
         source.changeCenterIntensity(newIntensity);
     })
@@ -862,7 +897,7 @@ function midiEventReceived(eventData) {
     log("eventData", eventData)
     // Light Speed
     if (eventData.note == novationMap.knob_1){
-        var speed = eventData.velocity/2;
+        var speed = lereventData.velocity/2;
         changeSpeed(speed);
     }
 
@@ -934,14 +969,14 @@ function midiEventReceived(eventData) {
     }
 
     // Center Light
-    if (eventData.note == novationMap.track_left){
-        trackValueEdit(5, 'down');
-        changeCenterIntensity(trackValue);
-    }
-    if (eventData.note == novationMap.track_right){
-        trackValueEdit(5, 'up');
-        changeCenterIntensity(trackValue);
-    }
+    // if (eventData.note == novationMap.track_left){
+    //     trackValueEdit(5, 'down');
+    //     changeCenterIntensity(trackValue);
+    // }
+    // if (eventData.note == novationMap.track_right){
+    //     trackValueEdit(5, 'up');
+    //     changeCenterIntensity(trackValue);
+    // }
 
     // Center Light Red
     if (eventData.note == novationMap.knob_6){
@@ -959,28 +994,28 @@ function midiEventReceived(eventData) {
         changeCenterBlue(eventData.velocity);
     }
 
-    if (eventData.note == novationMap.pad_1){
+    if (eventData.note == novationMap.pad_1 && eventData.status == 153){
         toggleEnable(0);
     }
-    if (eventData.note == novationMap.pad_2){
+    if (eventData.note == novationMap.pad_2 && eventData.status == 153){
         toggleEnable(1);
     }
-    if (eventData.note == novationMap.pad_3){
+    if (eventData.note == novationMap.pad_3 && eventData.status == 153){
         toggleEnable(2);
     }
-    if (eventData.note == novationMap.pad_4){
+    if (eventData.note == novationMap.pad_4 && eventData.status == 153){
         toggleEnable(3);
     }
-    if (eventData.note == novationMap.pad_5){
+    if (eventData.note == novationMap.pad_5 && eventData.status == 153){
         toggleCenterEnable(0);
     }
-    if (eventData.note == novationMap.pad_6){
+    if (eventData.note == novationMap.pad_6 && eventData.status == 153){
         toggleCenterEnable(1);
     }
-    if (eventData.note == novationMap.pad_7){
+    if (eventData.note == novationMap.pad_7 && eventData.status == 153){
         toggleCenterEnable(2);
     }
-    if (eventData.note == novationMap.pad_8){
+    if (eventData.note == novationMap.pad_8 && eventData.status == 153){
         toggleCenterEnable(3);
     }
     if (eventData.note == novationMap.c && eventData.status == 144){
@@ -1019,6 +1054,17 @@ function midiEventReceived(eventData) {
     if (eventData.note == novationMap.c2 && eventData.status == 144){
         changeSize(sizeMapArray[3]);
     }
+    if (eventData.note === novationMap.c2S && eventData.status == 128){
+        // log("being hit on c2s")
+        centerIntensityMIDIValueEdit(5, 'down');
+        log()
+        changeCenterIntensity(centerIntensityMIDIValue);
+    }
+    if (eventData.note === novationMap.d2S && eventData.status == 128){
+        // log("being hit on d2s")
+        centerIntensityMIDIValueEdit(5, 'up');
+        changeCenterIntensity(centerIntensityMIDIValue);
+    }
     if (eventData.note === novationMap.pad_9 && eventData.status == 153){
         turnOff();
     }
@@ -1027,6 +1073,12 @@ function midiEventReceived(eventData) {
     }
     if (eventData.note === novationMap.pad_10 && eventData.status == 153){
         turnOffParticle();
+    }
+    if (eventData.note === novationMap.pad_11 && eventData.status == 153){
+        raiseUp();
+    }
+    if (eventData.note === novationMap.pad_12 && eventData.status == 153){
+        raiseDown();
     }
     if (eventData.note === novationMap.c3 && eventData.status == 144){
         toggleVisible();
@@ -1146,6 +1198,7 @@ function midiConfig(){
 }
 
 function scriptEnding() {
+    Script.update.disconnect(updateTweens);
     lightSouceMakerObj.resetAll();
 }
 
@@ -1154,6 +1207,65 @@ function makeLight(){
 
 }
 makeLight();
+
+
+var tileNW = "{6b895461-9a14-4021-8435-4f41b06c4a2c}";
+var tileNE = "{d3044f27-db23-4c0d-947b-2f9600fb42cb}";
+var tileSW = "{b8d99f2f-cab5-4ea0-8e22-8cc9d1a05873}";
+var tileSE = "{3e9c52a2-5653-4751-96e1-30bed9af5ff1}";
+var tileNWTween;
+var tileNETween;
+var tileSWTween;
+var tileSETween;
+
+var tileCurrentPositions = [];
+var tileTweens = [tileNWTween,tileNETween, tileSWTween, tileSETween ];
+var platformArray = [tileNW, tileNE, tileSW, tileSE]
+platformArray.forEach(function(tile){
+    var tilePosition = Entities.getEntityProperties(tile,["position"]).dimensions;
+    tileCurrentPositions.push(tilePosition);
+})
+tileTweens.map(function(tile, index){
+    return tileTweens[index] = new TWEEN.Tween(tileCurrentPositions[index]);
+})
+
+
+var TIME_TO_MOVE = 10000;
+function runTween(tileArray, position, time){
+    log("position", position);
+    log("time", time);
+
+    log("tileArray in runTween", tileArray)
+    tileArray[0].to(position, time).onUpdate(function(obj){
+        var props = {
+            dimensions: obj
+        }
+        Entities.editEntity(tileArray[1],props);
+    })
+    tileArray[0].start();
+}
+function raiseUp(){
+    tileTweens.forEach(function(tile, index){
+        var tileArray = [tileTweens[index], platformArray[index]];
+        log("tile array", tileArray);
+        runTween(tileArray,{x:0,y:1,z:0}, TIME_TO_MOVE);
+    })
+};
+function raiseDown(){
+    tileTweens.forEach(function(tile, index){
+        var tileArray = [tileTweens[index], platformArray[index]];
+        log("tile array", tileArray);
+
+        runTween(tileArray,{x:0,y:.2,z:0}, TIME_TO_MOVE);
+    })
+};
+
+function updateTweens() {
+    //hook tween updates into our update loop
+    TWEEN.update();
+}
+Script.update.connect(updateTweens);
+
 
 Midi.midiReset.connect(midiHardwareResetReceieved);
 Midi.midiMessage.connect(midiEventReceived);
